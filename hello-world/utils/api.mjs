@@ -1,8 +1,64 @@
+
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const NodeGeocoder = require('node-geocoder');
 import axios from 'axios';
-import { invalidStreetArresses, pageFetchingHeaders } from '../data/constants.mjs';
+import Jimp from 'jimp';
+import stream from 'stream';
+import { promisify } from 'util';
+import logger from './logger.mjs';
+import { invalidStreetArresses, pageFetchingHeaders, imageFetchingHeaders } from'../data/constants.mjs';
+
+const PIXEL_LIMIT = 100000000;
+const MAX_WIDTH = 900;
+
+const options = {
+  provider: 'google',
+  apiKey: 'apiKey',
+};
+
+// const pipeline = promisify(stream.pipeline);
+
+export async function getLatAndLot(address, opportunity) {
+  try {
+    let geoCoder = NodeGeocoder(options);
+    const [{ latitude, longitude }] = await geoCoder.geocode(address);
+    if (latitude && longitude) {
+      return { lat: latitude, lon: longitude };
+    }
+  } catch (error) {
+    if (opportunity) {
+      logger.logGeocodingError(opportunity, error);
+    }
+    return null;
+  }
+}
+
+const getTimeout = (url) => {
+  if (url.includes('cloudinary.com') || url.includes('amazonaws.com')) {
+    return 15000;
+  }
+  return 20000;
+}
+
+export async function getImageBuffer(url) {
+  try {
+    const fullUrl = url.startsWith('http') ? url : `https:${url}`;
+    
+    const response = await axios.get(fullUrl, {
+      responseType: 'arraybuffer',
+      timeout: 20000,
+      headers: imageFetchingHeaders
+    });
+    return Buffer.from(response.data, 'binary');
+  } catch (error) {
+    console.error('Error fetching image:', error.message);
+    console.error('Error details:', error.response ? error.response.status : 'No response');
+    return [];
+  }
+}
 
 async function fetchVolunteerOpportunitiesPage(location, pageNumber) {
-
   const response = await axios({
     method: 'post',
     url: 'https://www.volunteermatch.org/s/srp/search',
@@ -15,7 +71,7 @@ async function fetchVolunteerOpportunitiesPage(location, pageNumber) {
           virtual: false
           categories: []
           skills: []
-          radius: "20"
+          radius: "region"
           greatFor: []
           timeslots: []
           specialFlag: ""
@@ -53,12 +109,10 @@ async function fetchVolunteerOpportunitiesPage(location, pageNumber) {
   const localOpps = response.data.data.searchSRP.srpOpportunities
     .filter((item) => {
       const street1 = item?.detail?.location?.street1;
-
       return typeof street1 === 'string' && street1.length > 4;
     })
     .filter((opp) => {
       const street1 = opp.detail.location.street1;
-
       return invalidStreetArresses.every((invalid) => !street1.includes(invalid));
     });
 
@@ -92,10 +146,9 @@ export async function fetchVolunteerOpportunities(location) {
 
         try {
           const pageData = await fetchVolunteerOpportunitiesPage(location, page);
-
           allOpportunities = [...allOpportunities, ...pageData.srpOpportunities];
         } catch (error) {
-          console.log(error);
+          logger.logFetchError(page, location, error);
           continue;
         }
       }
@@ -107,7 +160,7 @@ export async function fetchVolunteerOpportunities(location) {
     };
 
   } catch (error) {
-    console.log(error);
+    logger.logFetchError(1, location, error);
     throw error;
   }
 }

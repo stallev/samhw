@@ -1,20 +1,8 @@
-/**
- *
- * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
- * @param {Object} event - API Gateway Lambda Proxy Input Format
- *
- * Context doc: https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html 
- * @param {Object} context
- *
- * Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
- * @returns {Object} object - API Gateway Lambda Proxy Output Format
- * 
- */
-
-import { sendDataToDynamoDB, filterExistingOpportunities, getAllIdsFromDynamoDB } from './utils/db.mjs';
-import { fetchVolunteerOpportunities } from './utils/api.mjs';
-import { transformOpportunities } from './utils/opportunityTransformer.mjs';
-import logger from './utils/logger.mjs';
+require('dotenv').config();
+import { sendDataToDynamoDB, filterExistingOpportunities, getAllIdsFromDynamoDB } from './utils/db';
+import { fetchVolunteerOpportunities } from './utils/api';
+import { transformOpportunities } from './utils/opportunityTransformer';
+import { logger } from './utils/logger';
 
 const initLocation = 'CA';
 
@@ -60,19 +48,4 @@ async function volunteerSearchByState() {
   }
 }
 
-export const lambdaHandler = async (event, context) => {
-  try {
-    const report = await volunteerSearchByState();
-
-    return {
-      'statusCode': 200,
-      'body': JSON.stringify({
-        message: 'hello world',
-        report,
-      })
-    }
-  } catch (err) {
-    console.log(err);
-    return err;
-  }
-};
+volunteerSearchByState();
