@@ -11,12 +11,18 @@
  * 
  */
 
+import { fetchVolunteerOpportunities } from './utils/api.mjs';
+
 export const lambdaHandler = async (event, context) => {
+    const initLocation = '93721';
     try {
+        const { opportunities } = await fetchVolunteerOpportunities(initLocation);
+
         return {
             'statusCode': 200,
             'body': JSON.stringify({
                 message: 'hello world',
+                opportunitiesLength: opportunities?.length,
             })
         }
     } catch (err) {

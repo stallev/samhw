@@ -1,0 +1,113 @@
+import axios from 'axios';
+import { invalidStreetArresses, pageFetchingHeaders } from '../data/constants.mjs';
+
+async function fetchVolunteerOpportunitiesPage(location, pageNumber) {
+
+  const response = await axios({
+    method: 'post',
+    url: 'https://www.volunteermatch.org/s/srp/search',
+    headers: pageFetchingHeaders,
+    data: {
+      query: `query {
+        searchSRP(input:{
+          returnVirtualAndOnSiteOpps: true
+          location: "${location}"
+          virtual: false
+          categories: []
+          skills: []
+          radius: "20"
+          greatFor: []
+          timeslots: []
+          specialFlag: ""
+          keywords: []
+          pageNumber: ${pageNumber}
+          sortCriteria: null
+          numberOfResults: 25
+        }){
+          numberOfResults
+          resultsSize
+          originalResultSize
+          cityLocation
+          srpOpportunities{
+            detail {
+              id
+              location {
+                city
+                country
+                postalCode
+                region
+                street1
+                street2
+                virtual
+              }
+              title
+              plaintextDescription
+              imageUrl
+            }
+          }
+        }
+      }`
+    }
+  });
+
+  const localOpps = response.data.data.searchSRP.srpOpportunities
+    .filter((item) => {
+      const street1 = item?.detail?.location?.street1;
+
+      return typeof street1 === 'string' && street1.length > 4;
+    })
+    .filter((opp) => {
+      const street1 = opp.detail.location.street1;
+
+      return invalidStreetArresses.every((invalid) => !street1.includes(invalid));
+    });
+
+  const pageData = {
+    ...response.data.data.searchSRP,
+    srpOpportunities: localOpps,
+  };
+
+  return pageData;
+}
+
+export async function fetchVolunteerOpportunities(location) {
+  try {
+    const firstPageData = await fetchVolunteerOpportunitiesPage(location, 1);
+
+    const totalResults = firstPageData?.resultsSize;
+    const cityLocation = firstPageData.cityLocation;
+
+    let allOpportunities = [...firstPageData.srpOpportunities];
+
+    const totalPages = Math.ceil(totalResults / 25);
+
+    console.log(`Total results: ${totalResults}, Pages to fetch: ${totalPages}`);
+
+    if (totalPages > 1) {
+      const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+      for (let page = 2; page <= totalPages; page++) {
+        console.log(`Fetching page ${page} of ${totalPages}. State is ${location}`);
+        await delay(1000 + Math.random() * 5000);
+
+        try {
+          const pageData = await fetchVolunteerOpportunitiesPage(location, page);
+
+          allOpportunities = [...allOpportunities, ...pageData.srpOpportunities];
+        } catch (error) {
+          console.log(error);
+          continue;
+        }
+      }
+    }
+
+    return {
+      cityLocation,
+      opportunities: allOpportunities
+    };
+
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
