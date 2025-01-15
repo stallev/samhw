@@ -3,17 +3,11 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const NodeGeocoder = require('node-geocoder');
 import axios from 'axios';
-import Jimp from 'jimp';
-import stream from 'stream';
-import { promisify } from 'util';
+import sharp from 'sharp';
 import logger from './logger.mjs';
-import { logMemoryUsage, attemptGarbageCollection, trackPeakMemory } from './memoryMonitor.mjs';
 import { invalidStreetArresses, pageFetchingHeaders, imageFetchingHeaders } from '../data/constants.mjs';
 
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // Уменьшаем до 5MB
-const PIXEL_LIMIT = 4000000; // Примерно 2000x2000 пикселей
-const MAX_WIDTH = 900;
-const DEFAULT_QUALITY = 70; // Уменьшаем качество для меньшего размера
+const PIXEL_LIMIT = 100000000;
 
 const options = {
   provider: 'google',
@@ -44,77 +38,109 @@ const getTimeout = (url) => {
   return 20000;
 }
 
-export async function getImageBuffer(imageUrl, maxWidth = MAX_WIDTH, quality = DEFAULT_QUALITY) {
+export async function getImageBuffer(url) {
   try {
-    // Предварительная проверка размера
-    const headResponse = await axios.head(imageUrl, {
-      timeout: getTimeout(imageUrl),
+    const fullUrl = url.startsWith('http') ? url : `https:${url}`;
+
+    const response = await axios.get(fullUrl, {
+      responseType: 'arraybuffer',
+      timeout: getTimeout(fullUrl),
       headers: imageFetchingHeaders
     });
-    
-    const contentLength = parseInt(headResponse.headers['content-length'], 10);
-    if (contentLength > MAX_IMAGE_SIZE) {
-      throw new Error(`Image size ${contentLength} bytes exceeds maximum allowed size of ${MAX_IMAGE_SIZE} bytes`);
+
+    const metadata = await sharp(Buffer.from(response.data, 'binary'), {
+      failOnError: false
+    }).metadata();
+
+    if (!metadata) {
+      console.error('Unable to get image metadata');
+      return null;
     }
 
-    // Загружаем изображение чанками
-    const response = await axios.get(imageUrl, {
-      responseType: 'arraybuffer',
-      timeout: getTimeout(imageUrl),
-      maxContentLength: MAX_IMAGE_SIZE,
-      headers: {
-        ...imageFetchingHeaders,
-        'Range': 'bytes=0-' + MAX_IMAGE_SIZE
-      }
+    console.log('Processing image:', {
+      originalWidth: metadata.width,
+      originalHeight: metadata.height,
+      format: metadata.format,
+      size: response.data.length
     });
 
-    let image;
-    try {
-      const buffer = Buffer.from(response.data);
-      image = await Jimp.read(buffer);
-      // Освобождаем память
-      buffer.fill(0);
-      global.gc && global.gc();
-    } catch (error) {
-      throw new Error(`Failed to process image: ${error.message}`);
+    const totalPixels = (metadata.width || 0) * (metadata.height || 0);
+    if (totalPixels > PIXEL_LIMIT) {
+      console.warn(`Large image detected (${totalPixels} pixels). Attempting preliminary resize...`);
+
+      const scale = Math.sqrt(PIXEL_LIMIT / totalPixels);
+      const preliminaryWidth = Math.floor(metadata.width * scale);
+      const preliminaryHeight = Math.floor(metadata.height * scale);
+
+      const preliminaryBuffer = await sharp(Buffer.from(response.data, 'binary'), {
+        failOnError: false,
+        limitInputPixels: false
+      })
+        .resize(preliminaryWidth, preliminaryHeight)
+        .toBuffer();
+
+      const pipeline = sharp(preliminaryBuffer, {
+        failOnError: false,
+        limitInputPixels: PIXEL_LIMIT
+      });
+
+      const finalMetadata = await pipeline.metadata();
+      const targetWidth = Math.min(finalMetadata.width || 0, 900);
+
+      return await pipeline
+        .resize({
+          width: targetWidth,
+          withoutEnlargement: true,
+          fit: 'inside'
+        })
+        .webp({
+          quality: 80,
+          effort: 4,
+          mixed: true
+        })
+        .toBuffer();
     }
 
-    const { width, height } = image.bitmap;
-    const pixelCount = width * height;
-    
-    if (pixelCount > PIXEL_LIMIT) {
-      // Для больших изображений сначала уменьшаем размер
-      const scale = Math.sqrt(PIXEL_LIMIT / pixelCount);
-      const newWidth = Math.floor(width * scale);
-      const newHeight = Math.floor(height * scale);
-      image.resize(newWidth, newHeight);
-    }
+    const pipeline = sharp(Buffer.from(response.data, 'binary'), {
+      failOnError: false,
+      limitInputPixels: PIXEL_LIMIT
+    });
 
-    // Применяем максимальную ширину, если нужно
-    if (image.bitmap.width > maxWidth) {
-      const newHeight = Math.round((maxWidth / image.bitmap.width) * image.bitmap.height);
-      image.resize(maxWidth, newHeight);
-    }
+    const targetWidth = Math.min(metadata.width || 0, 900);
 
-    // Оптимизируем качество
-    image.quality(quality);
+    const optimizedBuffer = await pipeline
+      .resize({
+        width: targetWidth,
+        withoutEnlargement: true,
+        fit: 'inside'
+      })
+      .webp({
+        quality: 80,
+        effort: 4,
+        mixed: true
+      })
+      .toBuffer();
 
-    // Получаем буфер и сразу освобождаем память изображения
-    const result = {
-      imageBuffer: await image.getBufferAsync(Jimp.MIME_JPEG),
-      contentType: Jimp.MIME_JPEG,
-    };
+    const finalMetadata = await sharp(optimizedBuffer).metadata();
+    console.log('Image processed successfully:', {
+      finalWidth: finalMetadata.width,
+      finalHeight: finalMetadata.height,
+      finalSize: optimizedBuffer.length,
+      compressionRatio: (response.data.length / optimizedBuffer.length).toFixed(2)
+    });
 
-    // Явно освобождаем ресурсы
-    image.bitmap.data = null;
-    image = null;
-    global.gc && global.gc();
-
-    return result;
+    return optimizedBuffer;
   } catch (error) {
-    const enhancedError = new Error(`Failed to process image from ${imageUrl}: ${error.message}`);
-    enhancedError.originalError = error;
-    throw enhancedError;
+    console.error('Error processing image:', {
+      url: url,
+      error: error.message,
+      stack: error.stack,
+      response: error.response ? {
+        status: error.response.status,
+        headers: error.response.headers
+      } : 'No response'
+    });
+    return null;
   }
 }
 

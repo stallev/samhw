@@ -12,39 +12,44 @@ import { AWS_USER_CONFIG } from './../config.mjs';
 const s3Client = new S3Client(AWS_USER_CONFIG);
 
 async function uploadFileToS3(bucket, buffer, originalUrl, opportunity) {
+  if (!buffer) {
+    console.error('No buffer provided for upload');
+    return {
+      success: false,
+      error: 'No image buffer'
+    };
+  }
+
   try {
     const name = uuidv4();
-
-    const contentType = mime.lookup(originalUrl) || 'image/jpeg';
-    const fileExtension = mime.extension(contentType) || 'jpg';
-    const fileName = `${name}.${fileExtension}`;
-
+    const fileName = `${name}.webp`;
+    
     const command = new PutObjectCommand({
       Bucket: bucket,
       Key: fileName,
       Body: buffer,
-      ContentType: contentType || 'application/octet-stream',
+      ContentType: 'image/webp',
       ACL: 'public-read',
       Metadata: {
-        originalUrl: originalUrl,
-        uploadedAt: new Date().toISOString()
+        originalUrl,
+        uploadedAt: new Date().toISOString(),
+        optimized: 'true'
       }
     });
     
     await s3Client.send(command);
-    const objectBucketCreds = {
-      bucket,
-      region: process.env.REGION || 'us-east-1',
-      key: fileName
-    };
-    console.log(`Successfully uploaded file: ${fileName}`);
-
+    console.log('Successfully uploaded ', fileName);
+    
     return {
-      objectBucketCreds
+      objectBucketCreds: {
+        bucket,
+        region: process.env.REGION || 'us-east-1',
+        key: fileName
+      }
     };
   } catch (error) {
     logger.logImageUploadingError(opportunity, error);
-
+    
     console.error('Error uploading file to S3:', {
       message: error.message,
       code: error.Code || error.code,
@@ -58,11 +63,8 @@ async function uploadFileToS3(bucket, buffer, originalUrl, opportunity) {
 }
 
 export async function uploadImageToS3(url, opportunity) {
-  let imageBuffer = null;
-  
   try {
-    const result = await getImageBuffer(url);
-    imageBuffer = result.imageBuffer;
+    const imageBuffer = await getImageBuffer(url);
     
     if (!imageBuffer) {
       logger.logImageProcessingError(opportunity, url, new Error('Failed to get image buffer'));
@@ -72,17 +74,9 @@ export async function uploadImageToS3(url, opportunity) {
     const bucketName = 'test-s3-crawler-allev';
     const uploadResult = await uploadFileToS3(bucketName, imageBuffer, url, opportunity);
 
-    // Освобождаем память
-    imageBuffer = null;
-    global.gc && global.gc();
-
     return uploadResult.objectBucketCreds?.bucket ? [uploadResult.objectBucketCreds] : [];
   } catch (error) {
     logger.logImageProcessingError(opportunity, url, error);
     return [];
-  } finally {
-    // Гарантируем освобождение памяти
-    imageBuffer = null;
-    global.gc && global.gc();
   }
 }
