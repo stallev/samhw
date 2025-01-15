@@ -16,7 +16,7 @@ import { fetchVolunteerOpportunities } from './utils/api.mjs';
 import { transformOpportunities } from './utils/opportunityTransformer.mjs';
 import logger from './utils/logger.mjs';
 
-const initLocation = 'CA';
+const initLocation = '93721';
 
 async function performVolunteerSearchByLocation(initLocation, allRequestsIds) {
   const sourceSitePostfix = 'vlmtch';

@@ -5,6 +5,8 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
 import { getImageBuffer } from './api.mjs';
 import logger from './logger.mjs';
+import imageQueue from './imageQueue.mjs';
+import { logMemoryUsage } from './memoryMonitor.mjs';
 import { AWS_USER_CONFIG } from './../config.mjs';
 
 const s3Client = new S3Client(AWS_USER_CONFIG);
@@ -56,8 +58,11 @@ async function uploadFileToS3(bucket, buffer, originalUrl, opportunity) {
 }
 
 export async function uploadImageToS3(url, opportunity) {
+  let imageBuffer = null;
+  
   try {
-    const imageBuffer = await getImageBuffer(url);
+    const result = await getImageBuffer(url);
+    imageBuffer = result.imageBuffer;
     
     if (!imageBuffer) {
       logger.logImageProcessingError(opportunity, url, new Error('Failed to get image buffer'));
@@ -67,9 +72,17 @@ export async function uploadImageToS3(url, opportunity) {
     const bucketName = 'test-s3-crawler-allev';
     const uploadResult = await uploadFileToS3(bucketName, imageBuffer, url, opportunity);
 
+    // Освобождаем память
+    imageBuffer = null;
+    global.gc && global.gc();
+
     return uploadResult.objectBucketCreds?.bucket ? [uploadResult.objectBucketCreds] : [];
   } catch (error) {
     logger.logImageProcessingError(opportunity, url, error);
     return [];
+  } finally {
+    // Гарантируем освобождение памяти
+    imageBuffer = null;
+    global.gc && global.gc();
   }
 }
