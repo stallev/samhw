@@ -15,8 +15,7 @@ export async function transformOpportunities(opportunities, sourceSitePostfix) {
   try {
     const transformedData = [];
     const BATCH_SIZE = 5;
-
-    // Обрабатываем opportunities батчами
+    
     for (let i = 0; i < opportunities.length; i += BATCH_SIZE) {
       const batch = opportunities.slice(i, i + BATCH_SIZE);
 
@@ -34,8 +33,7 @@ export async function transformOpportunities(opportunities, sourceSitePostfix) {
           ${opp.detail.location.country}
           `
           );
-
-          // Параллельно запускаем получение координат и обработку изображения
+          
           const [imageCreds, location] = await Promise.all([
             opp.detail?.imageUrl ? uploadImageToS3(opp.detail?.imageUrl, opp) : [],
             getLatAndLot(address, opp)
@@ -64,8 +62,7 @@ export async function transformOpportunities(opportunities, sourceSitePostfix) {
           });
         }
       }
-
-      // После каждого батча даем время на сборку мусора
+      
       global.gc && global.gc();
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
