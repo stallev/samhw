@@ -9,6 +9,8 @@ import { invalidStreetArresses, pageFetchingHeaders, imageFetchingHeaders } from
 
 const PIXEL_LIMIT = 100000000;
 
+sharp.cache(false);
+
 const options = {
   provider: 'google',
   apiKey: '',
