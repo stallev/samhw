@@ -12,44 +12,35 @@ import { AWS_USER_CONFIG } from './../config.mjs';
 const s3Client = new S3Client(AWS_USER_CONFIG);
 
 async function uploadFileToS3(bucket, buffer, originalUrl, opportunity) {
-  if (!buffer) {
-    console.error('No buffer provided for upload');
-    return {
-      success: false,
-      error: 'No image buffer'
-    };
-  }
-
   try {
     const name = uuidv4();
-    const fileName = `${name}.webp`;
-    
+    const contentType = mime.lookup(originalUrl) || 'image/jpeg';
+    const fileExtension = mime.extension(contentType) || 'jpeg';
+    const fileName = `${name}.jpeg`;
     const command = new PutObjectCommand({
       Bucket: bucket,
       Key: fileName,
       Body: buffer,
-      ContentType: 'image/webp',
+      ContentType: 'image/jpeg',
       ACL: 'public-read',
       Metadata: {
-        originalUrl,
-        uploadedAt: new Date().toISOString(),
-        optimized: 'true'
+        originalUrl: originalUrl,
+        uploadedAt: new Date().toISOString()
       }
     });
     
     await s3Client.send(command);
-    console.log('Successfully uploaded ', fileName);
-    
+    const objectBucketCreds = {
+      bucket,
+      region: process.env.REGION || 'us-east-1',
+      key: fileName
+    };
+    console.log(`Successfully uploaded file: ${fileName}`);
     return {
-      objectBucketCreds: {
-        bucket,
-        region: process.env.REGION || 'us-east-1',
-        key: fileName
-      }
+      objectBucketCreds
     };
   } catch (error) {
     logger.logImageUploadingError(opportunity, error);
-    
     console.error('Error uploading file to S3:', {
       message: error.message,
       code: error.Code || error.code,

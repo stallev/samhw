@@ -7,7 +7,6 @@ export function logMemoryUsage(label) {
   console.log(`External: ${Math.round(used.external / 1024 / 1024 * 100) / 100} MB\n`);
 }
 
-// Функция для отслеживания пиковой памяти
 let peakMemory = 0;
 export function trackPeakMemory(label) {
   const used = process.memoryUsage().heapUsed;
@@ -17,7 +16,6 @@ export function trackPeakMemory(label) {
   }
 }
 
-// Функция для очистки памяти
 export function attemptGarbageCollection() {
   if (global.gc) {
     global.gc();
