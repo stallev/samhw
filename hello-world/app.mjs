@@ -16,13 +16,11 @@ import { fetchVolunteerOpportunities } from './utils/api.mjs';
 import { transformOpportunities } from './utils/opportunityTransformer.mjs';
 import logger from './utils/logger.mjs';
 
-const initLocation = '93721';
-
-async function performVolunteerSearchByLocation(initLocation, allRequestsIds) {
+async function performVolunteerSearchByLocation(location, allRequestsIds) {
   const sourceSitePostfix = 'vlmtch';
 
   try {
-    const { opportunities } = await fetchVolunteerOpportunities(initLocation);
+    const { opportunities } = await fetchVolunteerOpportunities(location);
 
     const newOpportunities = filterExistingOpportunities(allRequestsIds, opportunities, sourceSitePostfix);
 
@@ -41,20 +39,20 @@ async function performVolunteerSearchByLocation(initLocation, allRequestsIds) {
   }
 }
 
-async function volunteerSearchByState() {
+async function volunteerSearchByState(location = 'CA') {
   try {
     const allRequestsIds = await getAllIdsFromDynamoDB();
 
-    await performVolunteerSearchByLocation(initLocation, allRequestsIds);
+    await performVolunteerSearchByLocation(location, allRequestsIds);
 
-    const reportData = await logger.saveReport(initLocation);
+    const reportData = await logger.saveReport(location);
 
     return reportData;
   } catch (error) {
     logger.logGeneralExecutionError(error);
     console.error('Error in volunteerSearchByState:', error);
 
-    const reportData = await logger.saveReport(initLocation);
+    const reportData = await logger.saveReport(location);
     
     return reportData;
   }
@@ -62,17 +60,26 @@ async function volunteerSearchByState() {
 
 export const lambdaHandler = async (event, context) => {
   try {
-    const report = await volunteerSearchByState();
-
-    return {
-      'statusCode': 200,
-      'body': JSON.stringify({
-        message: 'hello world',
-        report,
-      })
+    let location = 'CA';
+    
+    if (event.location) {
+      location = event.location;
     }
+    
+    const report = await volunteerSearchByState(location);
+    
+    if (event.requestContext?.http) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          message: 'hello world',
+          report,
+        })
+      };
+    }
+    
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return err;
   }
 };

@@ -3,17 +3,14 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const NodeGeocoder = require('node-geocoder');
 import axios from 'axios';
-import sharp from 'sharp';
 import logger from './logger.mjs';
 import { invalidStreetArresses, pageFetchingHeaders, imageFetchingHeaders } from '../data/constants.mjs';
 
 const PIXEL_LIMIT = 100000000;
 
-sharp.cache(false);
-
 const options = {
   provider: 'google',
-  apiKey: '',
+  apiKey: 'AIzaSyDlSty_Xsc67E2ZWy5QyTOQVXt8cZ17DjU',
 };
 
 export async function getLatAndLot(address, opportunity) {
@@ -41,106 +38,17 @@ const getTimeout = (url) => {
 export async function getImageBuffer(url) {
   try {
     const fullUrl = url.startsWith('http') ? url : `https:${url}`;
-
+    
     const response = await axios.get(fullUrl, {
       responseType: 'arraybuffer',
-      timeout: getTimeout(fullUrl),
+      timeout: 20000,
       headers: imageFetchingHeaders
     });
-
-    const metadata = await sharp(Buffer.from(response.data, 'binary'), {
-      failOnError: false
-    }).metadata();
-
-    if (!metadata) {
-      console.error('Unable to get image metadata');
-      return null;
-    }
-
-    console.log('Processing image:', {
-      originalWidth: metadata.width,
-      originalHeight: metadata.height,
-      format: metadata.format,
-      size: response.data.length
-    });
-
-    const totalPixels = (metadata.width || 0) * (metadata.height || 0);
-    if (totalPixels > PIXEL_LIMIT) {
-      console.warn(`Large image detected (${totalPixels} pixels). Attempting preliminary resize...`);
-
-      const scale = Math.sqrt(PIXEL_LIMIT / totalPixels);
-      const preliminaryWidth = Math.floor(metadata.width * scale);
-      const preliminaryHeight = Math.floor(metadata.height * scale);
-
-      const preliminaryBuffer = await sharp(Buffer.from(response.data, 'binary'), {
-        failOnError: false,
-        limitInputPixels: false
-      })
-        .resize(preliminaryWidth, preliminaryHeight)
-        .toBuffer();
-
-      const pipeline = sharp(preliminaryBuffer, {
-        failOnError: false,
-        limitInputPixels: PIXEL_LIMIT
-      });
-
-      const finalMetadata = await pipeline.metadata();
-      const targetWidth = Math.min(finalMetadata.width || 0, 900);
-
-      return await pipeline
-        .resize({
-          width: targetWidth,
-          withoutEnlargement: true,
-          fit: 'inside'
-        })
-        .webp({
-          quality: 80,
-          effort: 4,
-          mixed: true
-        })
-        .toBuffer();
-    }
-
-    const pipeline = sharp(Buffer.from(response.data, 'binary'), {
-      failOnError: false,
-      limitInputPixels: PIXEL_LIMIT
-    });
-
-    const targetWidth = Math.min(metadata.width || 0, 900);
-
-    const optimizedBuffer = await pipeline
-      .resize({
-        width: targetWidth,
-        withoutEnlargement: true,
-        fit: 'inside'
-      })
-      .webp({
-        quality: 80,
-        effort: 4,
-        mixed: true
-      })
-      .toBuffer();
-
-    const finalMetadata = await sharp(optimizedBuffer).metadata();
-    console.log('Image processed successfully:', {
-      finalWidth: finalMetadata.width,
-      finalHeight: finalMetadata.height,
-      finalSize: optimizedBuffer.length,
-      compressionRatio: (response.data.length / optimizedBuffer.length).toFixed(2)
-    });
-
-    return optimizedBuffer;
+    return Buffer.from(response.data, 'binary');
   } catch (error) {
-    console.error('Error processing image:', {
-      url: url,
-      error: error.message,
-      stack: error.stack,
-      response: error.response ? {
-        status: error.response.status,
-        headers: error.response.headers
-      } : 'No response'
-    });
-    return null;
+    console.error('Error fetching image:', error.message);
+    console.error('Error details:', error.response ? error.response.status : 'No response');
+    return [];
   }
 }
 
@@ -154,10 +62,9 @@ async function fetchVolunteerOpportunitiesPage(location, pageNumber) {
         searchSRP(input:{
           returnVirtualAndOnSiteOpps: true
           location: "${location}"
-          virtual: false
           categories: []
           skills: []
-          radius: "20"
+          radius: "region"
           greatFor: []
           timeslots: []
           specialFlag: ""

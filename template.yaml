@@ -2,40 +2,93 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   samhw
-
   Sample SAM Template for samhw
-  
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+
 Globals:
   Function:
-    Timeout: 2000
+    Timeout: 2100
 
 Resources:
-  HelloWorldFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  VolunteerCrawlerFunction:
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: hello-world/
       Handler: app.lambdaHandler
       Runtime: nodejs18.x
       Architectures:
         - x86_64
+      Role: !GetAtt VolunteerCrawlerFunctionRole.Arn
+      Environment:
+        Variables:
+          AWS_REGION: !Ref AWS::Region
+          DYNAMO_DB_TABLE: testCrawlerTable
+          S3_BUCKET_NAME: test-s3-crawler-allev
       Events:
+        CaliforniaSchedule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 22 * * ? *)  # 10:00 PM UTC
+            Name: CaliforniaVolunteerSearch
+            Description: "Trigger volunteer search for CA at 10:00 PM"
+            Input: '{"location": "AL"}'
+        TexasSchedule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 23 * * ? *)  # 11:00 PM UTC
+            Name: TexasVolunteerSearch
+            Description: "Trigger volunteer search for TX at 11:00 PM"
+            Input: '{"location": "CA"}'
         HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /hello
             Method: get
 
+  VolunteerCrawlerFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/testCrawlerTable'
+        - PolicyName: S3Access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:DeleteObject
+                  - s3:ListBucket
+                Resource:
+                  - !Sub 'arn:aws:s3:::test-s3-crawler-allev'
+                  - !Sub 'arn:aws:s3:::test-s3-crawler-allev/*'
+
 Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   HelloWorldApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Description: "API Gateway endpoint URL for Prod stage for Volunteer Crawler function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  HelloWorldFunction:
-    Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+  VolunteerCrawlerFunction:
+    Description: "Volunteer Crawler Lambda Function ARN"
+    Value: !GetAtt VolunteerCrawlerFunction.Arn
+  VolunteerCrawlerFunctionIamRole:
+    Description: "Implicit IAM Role created for Volunteer Crawler function"
+    Value: !GetAtt VolunteerCrawlerFunctionRole.Arn

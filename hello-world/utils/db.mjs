@@ -1,12 +1,10 @@
 import { DynamoDBClient, PutItemCommand, BatchWriteItemCommand, ScanCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import logger from'./logger.mjs';
-import { AWS_USER_CONFIG } from '../config.mjs';
+import logger from './logger.mjs';
 
-const dynamoClient = new DynamoDBClient(AWS_USER_CONFIG);
+const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION || 'us-east-1' });
 
-// const DYNAMO_DB_TABLE = process.env.DYNAMO_DB_TABLE;
-const DYNAMO_DB_TABLE = 'testCrawlerTable';
+const DYNAMO_DB_TABLE = process.env.DYNAMO_DB_TABLE || 'testCrawlerTable';
 
 function removeUndefined(obj) {
   return Object.fromEntries(
@@ -17,7 +15,7 @@ function removeUndefined(obj) {
         value && typeof value === 'object' ? removeUndefined(value) : value
       ])
   );
-};
+}
 
 export async function getAllIdsFromDynamoDB() {
   try {
@@ -130,7 +128,6 @@ async function batchSaveDataToDynamoDB(tableName, items) {
     throw error;
   }
 }
-
 
 export async function sendDataToDynamoDB(data) {
   try {

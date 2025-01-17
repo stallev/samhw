@@ -1,7 +1,7 @@
 {
   "name": "hello_world",
   "version": "1.0.0",
-  "description": "hello world sample for NodeJS",
+  "description": "volunteer crawler for NodeJS",
   "main": "app.js",
   "repository": "https://github.com/awslabs/aws-sam-cli/tree/develop/samcli/local/init/templates/cookiecutter-aws-sam-hello-nodejs",
   "author": "SAM CLI",
@@ -16,7 +16,6 @@
     "mime-types": "2.1.35",
     "node-geocoder": "4.3.0",
     "path": "0.12.7",
-    "sharp": "0.32.6",
     "uuid": "9.0.1"
   },
   "scripts": {

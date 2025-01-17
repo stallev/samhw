@@ -5,21 +5,22 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
 import { getImageBuffer } from './api.mjs';
 import logger from './logger.mjs';
-import { AWS_USER_CONFIG } from './../config.mjs';
 
-const s3Client = new S3Client(AWS_USER_CONFIG);
+const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
 
 async function uploadFileToS3(bucket, buffer, originalUrl, opportunity) {
   try {
     const name = uuidv4();
+
     const contentType = mime.lookup(originalUrl) || 'image/jpeg';
-    const fileExtension = mime.extension(contentType) || 'jpeg';
-    const fileName = `${name}.jpeg`;
+    const fileExtension = mime.extension(contentType) || 'jpg';
+    const fileName = `${name}.${fileExtension}`;
+
     const command = new PutObjectCommand({
       Bucket: bucket,
       Key: fileName,
       Body: buffer,
-      ContentType: 'image/jpeg',
+      ContentType: contentType || 'application/octet-stream',
       ACL: 'public-read',
       Metadata: {
         originalUrl: originalUrl,
@@ -30,15 +31,17 @@ async function uploadFileToS3(bucket, buffer, originalUrl, opportunity) {
     await s3Client.send(command);
     const objectBucketCreds = {
       bucket,
-      region: process.env.REGION || 'us-east-1',
+      region: process.env.AWS_REGION || 'us-east-1',
       key: fileName
     };
     console.log(`Successfully uploaded file: ${fileName}`);
+
     return {
       objectBucketCreds
     };
   } catch (error) {
     logger.logImageUploadingError(opportunity, error);
+
     console.error('Error uploading file to S3:', {
       message: error.message,
       code: error.Code || error.code,
@@ -60,7 +63,7 @@ export async function uploadImageToS3(url, opportunity) {
       return [];
     }
 
-    const bucketName = 'test-s3-crawler-allev';
+    const bucketName = process.env.S3_BUCKET_NAME || 'test-s3-crawler-allev';
     const uploadResult = await uploadFileToS3(bucketName, imageBuffer, url, opportunity);
 
     return uploadResult.objectBucketCreds?.bucket ? [uploadResult.objectBucketCreds] : [];
