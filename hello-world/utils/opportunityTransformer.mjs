@@ -1,6 +1,5 @@
 import { uploadImageToS3 } from './s3.mjs';
 import { getLatAndLot } from './api.mjs';
-import { logMemoryUsage, attemptGarbageCollection } from './memoryMonitor.mjs';
 import logger from './logger.mjs';
 
 function formatteAddressString(address) {

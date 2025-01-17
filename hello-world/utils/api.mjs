@@ -16,8 +16,6 @@ const options = {
   apiKey: '',
 };
 
-// const pipeline = promisify(stream.pipeline);
-
 export async function getLatAndLot(address, opportunity) {
   try {
     let geoCoder = NodeGeocoder(options);

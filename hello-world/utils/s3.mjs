@@ -5,8 +5,6 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
 import { getImageBuffer } from './api.mjs';
 import logger from './logger.mjs';
-import imageQueue from './imageQueue.mjs';
-import { logMemoryUsage } from './memoryMonitor.mjs';
 import { AWS_USER_CONFIG } from './../config.mjs';
 
 const s3Client = new S3Client(AWS_USER_CONFIG);
