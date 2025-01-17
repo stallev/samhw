@@ -14,7 +14,7 @@ async function uploadFileToS3(bucket, buffer, originalUrl, opportunity) {
 
     const contentType = mime.lookup(originalUrl) || 'image/jpeg';
     const fileExtension = mime.extension(contentType) || 'jpg';
-    const fileName = `${name}.${fileExtension}`;
+    const fileName = `public/${name}.${fileExtension}`;
 
     const command = new PutObjectCommand({
       Bucket: bucket,

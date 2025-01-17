@@ -60,7 +60,7 @@ async function volunteerSearchByState(location = 'CA') {
 
 export const lambdaHandler = async (event, context) => {
   try {
-    let location = 'CA';
+    let location = 'AL';
     
     if (event.location) {
       location = event.location;

@@ -51,7 +51,7 @@ export async function transformOpportunities(opportunities, sourceSitePostfix) {
             address,
             location,
             photos: JSON.stringify(imageCreds),
-            owner: 'process.env.OWNER',
+            owner: process.env.USER_OWNER_ID || 'd7fcb4d4-3b8d-4979-a4f9-080e7886f9e2',
             dueDate: (new Date(currentDate.setDate(currentDate.getDate() + 90))).toISOString(),
             category: 'category.Other',
             status: 'approved',
