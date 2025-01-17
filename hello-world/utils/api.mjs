@@ -10,7 +10,7 @@ const PIXEL_LIMIT = 100000000;
 
 const options = {
   provider: 'google',
-  apiKey: 'AIzaSyDlSty_Xsc67E2ZWy5QyTOQVXt8cZ17DjU',
+  apiKey: '',
 };
 
 export async function getLatAndLot(address, opportunity) {
