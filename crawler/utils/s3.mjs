@@ -28,20 +28,20 @@ async function uploadFileToS3(bucket, buffer, originalUrl, opportunity) {
       }
     });
     
-    // await s3Client.send(command);
+    await s3Client.send(command);
     
-    // const photoData = {
-    //   bucket,
-    //   region: process.env.MY_AWS_REGION || 'us-east-1',
-    //   key: `${name}.${fileExtension}`
-    // };
     const photoData = {
       bucket,
       region: process.env.MY_AWS_REGION || 'us-east-1',
-      key: '0873fc4e-1775-4e20-801c-9085ac7368a1.jpeg'
+      key: `${name}.${fileExtension}`
     };
+    // const photoData = {
+    //   bucket,
+    //   region: process.env.MY_AWS_REGION || 'us-east-1',
+    //   key: '0873fc4e-1775-4e20-801c-9085ac7368a1.jpeg'
+    // };
     
-    // console.log(`Successfully uploaded file: ${fileName}`);
+    console.log(`Successfully uploaded file: ${fileName}`);
 
     return {
       success: true,

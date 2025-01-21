@@ -36,10 +36,17 @@ Resources:
         CaliforniaSchedule:
           Type: Schedule
           Properties:
-            Schedule: cron(10 14 * * ? *)  # 14:10 PM UTC
+            Schedule: cron(30 14 * * ? *)  # 14:20 PM UTC
             Name: CaliforniaVolunteerSearch
             Description: "Trigger volunteer search for 93721 at 11:00 PM"
             Input: '{"location": "93721"}'
+        NewYorkSchedule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 15 * * ? *)  # 15:00 PM UTC
+            Name: NewYorkVolunteerSearch
+            Description: "Trigger volunteer search for 93721 at 11:00 PM"
+            Input: '{"location": "11205"}'
         HelloWorld:
           Type: Api
           Properties:
@@ -79,6 +86,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:PutObject
+                  - s3:PutObjectAcl
                   - s3:GetObject
                   - s3:DeleteObject
                   - s3:ListBucket
