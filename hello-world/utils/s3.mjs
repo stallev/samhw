@@ -29,15 +29,19 @@ async function uploadFileToS3(bucket, buffer, originalUrl, opportunity) {
     });
     
     await s3Client.send(command);
-    const objectBucketCreds = {
+    
+    // Возвращаем объект с данными фото в формате для List[Map]
+    const photoData = {
       bucket,
       region: process.env.AWS_REGION || 'us-east-1',
       key: fileName
     };
+    
     console.log(`Successfully uploaded file: ${fileName}`);
 
     return {
-      objectBucketCreds
+      success: true,
+      photoData
     };
   } catch (error) {
     logger.logImageUploadingError(opportunity, error);
@@ -47,6 +51,7 @@ async function uploadFileToS3(bucket, buffer, originalUrl, opportunity) {
       code: error.Code || error.code,
       requestId: error.RequestId || error.requestId
     });
+    
     return {
       success: false,
       error: error.message
@@ -65,8 +70,10 @@ export async function uploadImageToS3(url, opportunity) {
 
     const bucketName = process.env.S3_BUCKET_NAME || 'test-s3-crawler-allev';
     const uploadResult = await uploadFileToS3(bucketName, imageBuffer, url, opportunity);
-
-    return uploadResult.objectBucketCreds?.bucket ? [uploadResult.objectBucketCreds] : [];
+    
+    const result = uploadResult.success ? uploadResult.photoData : [];
+    
+    return result;
   } catch (error) {
     logger.logImageProcessingError(opportunity, url, error);
     return [];

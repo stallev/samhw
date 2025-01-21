@@ -49,16 +49,28 @@ export async function getAllIdsFromDynamoDB() {
 
 export async function saveDataToDynamoDB(tableName, data) {
   try {
+    console.log('Original data before save:', JSON.stringify(data, null, 2));
+    
     const cleanData = removeUndefined(data);
+    console.log('Clean data before marshalling:', JSON.stringify(cleanData, null, 2));
+    
+    if (cleanData.photos) {
+      console.log('Photos before marshalling:', cleanData.photos);
+      if (!Array.isArray(cleanData.photos)) {
+        cleanData.photos = [cleanData.photos];
+      }
+    }
+
     const marshalled = marshall(cleanData, {
       removeUndefinedValues: true,
-      convertEmptyValues: true
+      convertEmptyValues: true,
+      convertClassInstanceToMap: true
     });
-
     const command = new PutItemCommand({
       TableName: tableName,
       Item: marshalled
     });
+
     const response = await dynamoClient.send(command);
 
     logger.increaseSuccessfullDbUploads(1);
@@ -66,7 +78,6 @@ export async function saveDataToDynamoDB(tableName, data) {
     return response;
   } catch (error) {
     logger.logDynamoDbError(data, error);
-    
     console.error('Error saving to DynamoDB:', error);
     throw error;
   }
@@ -81,9 +92,24 @@ async function batchSaveDataToDynamoDB(tableName, items) {
     for (let i = 0; i < items.length; i += batchSize) {
       const batch = items.slice(i, i + batchSize);
       
-      const writeRequests = batch.map(item => ({
+      const batchWithCleanedPhotos = batch.map(item => {
+        const cleanItem = removeUndefined(item);
+
+        if (cleanItem?.photos?.bucket) {
+          console.log('cleanItem.photos ', cleanItem.photos)
+          if (!Array.isArray(cleanItem.photos)) {
+            cleanItem.photos = [cleanItem.photos];
+          }
+        } else {
+          cleanItem.photos = [];
+        }
+
+        return cleanItem;
+      });
+
+      const writeRequests = batchWithCleanedPhotos.map(item => ({
         PutRequest: {
-          Item: marshall(removeUndefined(item), {
+          Item: marshall(item, {
             removeUndefinedValues: true,
             convertEmptyValues: true
           })
@@ -98,13 +124,13 @@ async function batchSaveDataToDynamoDB(tableName, items) {
 
       const response = await dynamoClient.send(command);
       results.push(response);
-      
+
       const processedItemsCount = writeRequests.length - 
         (response.UnprocessedItems?.[tableName]?.length || 0);
       successfullItemsCount += processedItemsCount;
-      
-      console.log('Successfull uploaded requests ', successfullItemsCount);
-      
+
+      console.log('Successfully uploaded requests ', successfullItemsCount);
+
       if (response.UnprocessedItems && Object.keys(response.UnprocessedItems).length > 0) {
         const retryCommand = new BatchWriteItemCommand({
           RequestItems: response.UnprocessedItems
@@ -115,7 +141,7 @@ async function batchSaveDataToDynamoDB(tableName, items) {
         const retriedItemsCount = retryResponse?.UnprocessedItems?.[tableName]?.length || 0;
         successfullItemsCount += processedItemsCount - retriedItemsCount;
       }
-      
+
       if (i + batchSize < items.length) {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
@@ -130,18 +156,15 @@ async function batchSaveDataToDynamoDB(tableName, items) {
 }
 
 export async function sendDataToDynamoDB(data) {
-  try {
-    let savedRequestsCount;
-    
+  try {    
     if (data?.length > 1) {
       const { successfullItemsCount } = await batchSaveDataToDynamoDB(DYNAMO_DB_TABLE, data);
-      savedRequestsCount = successfullItemsCount;
 
       logger.increaseSuccessfullDbUploads(successfullItemsCount);
 
       console.log(`Successfully saved ${successfullItemsCount} items to DynamoDB`);
     } else {
-      await saveDataToDynamoDB(DYNAMO_DB_TABLE, data);
+      await saveDataToDynamoDB(DYNAMO_DB_TABLE, data[0] || data);
 
       logger.increaseSuccessfullDbUploads(1);
       

@@ -37,6 +37,8 @@ export async function transformOpportunities(opportunities, sourceSitePostfix) {
             opp.detail?.imageUrl ? uploadImageToS3(opp.detail?.imageUrl, opp) : [],
             getLatAndLot(address, opp)
           ]);
+          
+          console.log('Image credentials before transform:', imageCreds);
 
           if (!location) {
             console.log('Wrong location for id ', opp.detail?.id, ' ', 'Location value is ', location);
@@ -50,7 +52,7 @@ export async function transformOpportunities(opportunities, sourceSitePostfix) {
             description: opp.detail.plaintextDescription,
             address,
             location,
-            photos: JSON.stringify(imageCreds),
+            photos: imageCreds,
             owner: process.env.USER_OWNER_ID || 'd7fcb4d4-3b8d-4979-a4f9-080e7886f9e2',
             dueDate: (new Date(currentDate.setDate(currentDate.getDate() + 90))).toISOString(),
             category: 'category.Other',

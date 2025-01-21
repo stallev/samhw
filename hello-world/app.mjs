@@ -39,7 +39,7 @@ async function performVolunteerSearchByLocation(location, allRequestsIds) {
   }
 }
 
-async function volunteerSearchByState(location = 'CA') {
+async function volunteerSearchByState(location = '93721') {
   try {
     const allRequestsIds = await getAllIdsFromDynamoDB();
 
@@ -60,7 +60,7 @@ async function volunteerSearchByState(location = 'CA') {
 
 export const lambdaHandler = async (event, context) => {
   try {
-    let location = 'AL';
+    let location = '93721';
     
     if (event.location) {
       location = event.location;
@@ -76,6 +76,14 @@ export const lambdaHandler = async (event, context) => {
           report,
         })
       };
+    }
+
+    return {
+      'statusCode': 200,
+      'body': JSON.stringify({
+        message: 'hello world',
+        report,
+      })
     }
     
   } catch (err) {
