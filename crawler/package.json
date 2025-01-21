@@ -1,5 +1,5 @@
 {
-  "name": "hello_world",
+  "name": "crawler",
   "version": "1.0.0",
   "description": "volunteer crawler for NodeJS",
   "main": "app.js",

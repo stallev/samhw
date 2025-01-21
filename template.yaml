@@ -12,7 +12,7 @@ Resources:
   VolunteerCrawlerFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: hello-world/
+      CodeUri: crawler/
       Handler: app.lambdaHandler
       Runtime: nodejs18.x
       Architectures:
@@ -36,7 +36,7 @@ Resources:
         CaliforniaSchedule:
           Type: Schedule
           Properties:
-            Schedule: cron(16 9 * * ? *)  # 9:16 PM UTC
+            Schedule: cron(10 14 * * ? *)  # 14:10 PM UTC
             Name: CaliforniaVolunteerSearch
             Description: "Trigger volunteer search for 93721 at 11:00 PM"
             Input: '{"location": "93721"}'
@@ -69,6 +69,8 @@ Resources:
                   - dynamodb:DeleteItem
                   - dynamodb:Scan
                   - dynamodb:Query
+                  - dynamodb:BatchWriteItem
+                  - dynamodb:BatchGetItem
                 Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/testCrawlerTable'
         - PolicyName: S3Access
           PolicyDocument:
