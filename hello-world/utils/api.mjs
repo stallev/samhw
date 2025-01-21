@@ -6,16 +6,10 @@ import axios from 'axios';
 import logger from './logger.mjs';
 import { invalidStreetArresses, pageFetchingHeaders, imageFetchingHeaders } from '../data/constants.mjs';
 
-const PIXEL_LIMIT = 100000000;
-
-const options = {
-  provider: 'google',
-  apiKey: '',
-};
-
-export async function getLatAndLot(address, opportunity) {
+export async function getLatAndLot(geoProviderCreds, address, opportunity) {
   try {
-    let geoCoder = NodeGeocoder(options);
+    let geoCoder = NodeGeocoder(geoProviderCreds);
+
     const [{ latitude, longitude }] = await geoCoder.geocode(address);
     if (latitude && longitude) {
       return { lat: latitude, lon: longitude };

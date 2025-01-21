@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getImageBuffer } from './api.mjs';
 import logger from './logger.mjs';
 
-const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
+const s3Client = new S3Client({ region: process.env.MY_AWS_REGION || 'us-east-1' });
 
 async function uploadFileToS3(bucket, buffer, originalUrl, opportunity) {
   try {
@@ -28,16 +28,20 @@ async function uploadFileToS3(bucket, buffer, originalUrl, opportunity) {
       }
     });
     
-    await s3Client.send(command);
+    // await s3Client.send(command);
     
-    // Возвращаем объект с данными фото в формате для List[Map]
+    // const photoData = {
+    //   bucket,
+    //   region: process.env.MY_AWS_REGION || 'us-east-1',
+    //   key: `${name}.${fileExtension}`
+    // };
     const photoData = {
       bucket,
-      region: process.env.AWS_REGION || 'us-east-1',
-      key: fileName
+      region: process.env.MY_AWS_REGION || 'us-east-1',
+      key: '0873fc4e-1775-4e20-801c-9085ac7368a1.jpeg'
     };
     
-    console.log(`Successfully uploaded file: ${fileName}`);
+    // console.log(`Successfully uploaded file: ${fileName}`);
 
     return {
       success: true,

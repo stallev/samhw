@@ -6,7 +6,7 @@ Description: >
 
 Globals:
   Function:
-    Timeout: 2100
+    Timeout: 900
 
 Resources:
   VolunteerCrawlerFunction:
@@ -20,25 +20,26 @@ Resources:
       Role: !GetAtt VolunteerCrawlerFunctionRole.Arn
       Environment:
         Variables:
-          AWS_REGION: !Ref AWS::Region
+          MY_AWS_REGION: !Ref AWS::Region
           DYNAMO_DB_TABLE: testCrawlerTable
           S3_BUCKET_NAME: test-s3-crawler-allev
           USER_OWNER_ID: d7fcb4d4-3b8d-4979-a4f9-080e7886f9e2
+          GOOGLE_API_KEY_PARAM_NAME: google_api_key
       Events:
-        CaliforniaSchedule:
+        AlabamaSchedule:
           Type: Schedule
           Properties:
             Schedule: cron(0 22 * * ? *)  # 10:00 PM UTC
             Name: AlabamaVolunteerSearch
             Description: "Trigger volunteer search for CA at 10:00 PM"
             Input: '{"location": "AL"}'
-        TexasSchedule:
+        CaliforniaSchedule:
           Type: Schedule
           Properties:
-            Schedule: cron(0 23 * * ? *)  # 11:00 PM UTC
+            Schedule: cron(16 9 * * ? *)  # 9:16 PM UTC
             Name: CaliforniaVolunteerSearch
-            Description: "Trigger volunteer search for TX at 11:00 PM"
-            Input: '{"location": "CA"}'
+            Description: "Trigger volunteer search for 93721 at 11:00 PM"
+            Input: '{"location": "93721"}'
         HelloWorld:
           Type: Api
           Properties:
@@ -82,6 +83,14 @@ Resources:
                 Resource:
                   - !Sub 'arn:aws:s3:::test-s3-crawler-allev'
                   - !Sub 'arn:aws:s3:::test-s3-crawler-allev/*'
+        - PolicyName: SSMAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/google_api_key"
 
 Outputs:
   HelloWorldApi:

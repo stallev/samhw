@@ -25,6 +25,7 @@ class Logger {
       errors: {
         fetchErrors: [],
         geocodingErrors: [],
+        fetchingApiKeyErrors: [],
         imageProcessingErrors: [],
         imageUploadingErrors: [],
         dynamoDbErrors: [],
@@ -119,6 +120,10 @@ class Logger {
 
   logExecutionTime(secondsCount) {
     this.stats.executionTime = secondsCount;
+  }
+
+  logFetchingApiKeysError(errorDetails) {
+    this.stats.errors.fetchingApiKeyErrors.push(errorDetails);
   }
 
   logGeneralExecutionError(error) {

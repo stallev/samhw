@@ -2,7 +2,7 @@ import { DynamoDBClient, PutItemCommand, BatchWriteItemCommand, ScanCommand } fr
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import logger from './logger.mjs';
 
-const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION || 'us-east-1' });
+const dynamoClient = new DynamoDBClient({ region: process.env.MY_AWS_REGION || 'us-east-1' });
 
 const DYNAMO_DB_TABLE = process.env.DYNAMO_DB_TABLE || 'testCrawlerTable';
 

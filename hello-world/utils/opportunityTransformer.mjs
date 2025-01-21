@@ -1,5 +1,6 @@
 import { uploadImageToS3 } from './s3.mjs';
 import { getLatAndLot } from './api.mjs';
+import { getGeoProviderCreds } from './asm.mjs';
 import logger from './logger.mjs';
 
 function formatteAddressString(address) {
@@ -14,6 +15,10 @@ export async function transformOpportunities(opportunities, sourceSitePostfix) {
   try {
     const transformedData = [];
     const BATCH_SIZE = 5;
+
+    const { geoProviderCreds } = await getGeoProviderCreds();
+
+    console.log('geoProviderCreds is ', geoProviderCreds);
     
     for (let i = 0; i < opportunities.length; i += BATCH_SIZE) {
       const batch = opportunities.slice(i, i + BATCH_SIZE);
@@ -35,7 +40,7 @@ export async function transformOpportunities(opportunities, sourceSitePostfix) {
           
           const [imageCreds, location] = await Promise.all([
             opp.detail?.imageUrl ? uploadImageToS3(opp.detail?.imageUrl, opp) : [],
-            getLatAndLot(address, opp)
+            getLatAndLot(geoProviderCreds, address, opp)
           ]);
           
           console.log('Image credentials before transform:', imageCreds);
