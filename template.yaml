@@ -31,27 +31,22 @@ Resources:
           Properties:
             Schedule: cron(0 22 * * ? *)  # 10:00 PM UTC
             Name: AlabamaVolunteerSearch
-            Description: "Trigger volunteer search for CA at 10:00 PM"
+            Description: "Trigger volunteer search for AL at 10:00 PM"
             Input: '{"location": "AL"}'
         CaliforniaSchedule:
           Type: Schedule
           Properties:
-            Schedule: cron(30 14 * * ? *)  # 14:20 PM UTC
+            Schedule: cron(30 14 * * ? *)  # 14:30 PM UTC
             Name: CaliforniaVolunteerSearch
-            Description: "Trigger volunteer search for 93721 at 11:00 PM"
+            Description: "Trigger volunteer search for California"
             Input: '{"location": "93721"}'
         NewYorkSchedule:
           Type: Schedule
           Properties:
-            Schedule: cron(0 15 * * ? *)  # 15:00 PM UTC
+            Schedule: cron(43 10 * * ? *)  # 15:00 PM UTC
             Name: NewYorkVolunteerSearch
-            Description: "Trigger volunteer search for 93721 at 11:00 PM"
+            Description: "Trigger volunteer search for New York"
             Input: '{"location": "11205"}'
-        HelloWorld:
-          Type: Api
-          Properties:
-            Path: /hello
-            Method: get
 
   VolunteerCrawlerFunctionRole:
     Type: AWS::IAM::Role
@@ -100,12 +95,9 @@ Resources:
               - Effect: Allow
                 Action:
                   - ssm:GetParameter
-                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/google_api_key"
+                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/dev/google_gcp_api_key"
 
 Outputs:
-  HelloWorldApi:
-    Description: "API Gateway endpoint URL for Prod stage for Volunteer Crawler function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
   VolunteerCrawlerFunction:
     Description: "Volunteer Crawler Lambda Function ARN"
     Value: !GetAtt VolunteerCrawlerFunction.Arn
