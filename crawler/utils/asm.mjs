@@ -15,8 +15,6 @@ export const getGeoProviderCreds = async () => {
     const response = await ssmClient.send(command);
     const googleApiKey = response.Parameter.Value;
 
-    console.log("Google API Key:", googleApiKey);
-
     const geoProviderCreds = {
       provider: 'google',
       apiKey: googleApiKey,

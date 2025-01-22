@@ -22,13 +22,6 @@ export async function getLatAndLot(geoProviderCreds, address, opportunity) {
   }
 }
 
-const getTimeout = (url) => {
-  if (url.includes('cloudinary.com') || url.includes('amazonaws.com')) {
-    return 15000;
-  }
-  return 20000;
-}
-
 export async function getImageBuffer(url) {
   try {
     const fullUrl = url.startsWith('http') ? url : `https:${url}`;
@@ -42,6 +35,7 @@ export async function getImageBuffer(url) {
   } catch (error) {
     console.error('Error fetching image:', error.message);
     console.error('Error details:', error.response ? error.response.status : 'No response');
+    
     return [];
   }
 }

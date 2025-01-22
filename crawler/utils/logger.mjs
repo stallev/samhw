@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 
 function getFormattedDate(timestampValue) {
   const date = new Date(timestampValue);
@@ -146,17 +144,6 @@ class Logger {
       },
       errors: this.stats.errors
     };
-
-    // const responsesDir = path.join(__dirname, '..', 'responses');
-    // if (!fs.existsSync(responsesDir)) {
-    //   fs.mkdirSync(responsesDir, { recursive: true });
-    // }
-
-    // const filename = `volunteer_search_report_${location}_${getFormattedDate(this.stats.startTime)}.json`;
-    // const filepath = path.join(responsesDir, filename);
-
-    // await fs.promises.writeFile(filepath, JSON.stringify(report, null, 2));
-    // console.log(`Execution report saved to: ${filename}`);
 
     return report;
   }

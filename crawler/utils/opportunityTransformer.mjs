@@ -17,8 +17,6 @@ export async function transformOpportunities(opportunities, sourceSitePostfix) {
     const BATCH_SIZE = 5;
 
     const { geoProviderCreds } = await getGeoProviderCreds();
-
-    console.log('geoProviderCreds is ', geoProviderCreds);
     
     for (let i = 0; i < opportunities.length; i += BATCH_SIZE) {
       const batch = opportunities.slice(i, i + BATCH_SIZE);
@@ -42,8 +40,6 @@ export async function transformOpportunities(opportunities, sourceSitePostfix) {
             opp.detail?.imageUrl ? uploadImageToS3(opp.detail?.imageUrl, opp) : [],
             getLatAndLot(geoProviderCreds, address, opp)
           ]);
-          
-          console.log('Image credentials before transform:', imageCreds);
 
           if (!location) {
             console.log('Wrong location for id ', opp.detail?.id, ' ', 'Location value is ', location);
@@ -68,10 +64,9 @@ export async function transformOpportunities(opportunities, sourceSitePostfix) {
           });
         }
       }
-      
-      global.gc && global.gc();
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
+
+      await new Promise(resolve => setTimeout(resolve, 700));
+    };
 
     return transformedData;
   } catch (error) {

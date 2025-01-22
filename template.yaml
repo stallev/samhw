@@ -24,7 +24,7 @@ Resources:
           DYNAMO_DB_TABLE: testCrawlerTable
           S3_BUCKET_NAME: test-s3-crawler-allev
           USER_OWNER_ID: d7fcb4d4-3b8d-4979-a4f9-080e7886f9e2
-          GOOGLE_API_KEY_PARAM_NAME: google_api_key
+          GOOGLE_API_KEY_PARAM_NAME: /dev/google_gcp_api_key
       Events:
         AlabamaSchedule:
           Type: Schedule
