@@ -52,7 +52,7 @@ async function fetchVolunteerOpportunitiesPage(location, pageNumber) {
           location: "${location}"
           categories: []
           skills: []
-          radius: "20"
+          radius: "region"
           greatFor: []
           timeslots: []
           specialFlag: ""

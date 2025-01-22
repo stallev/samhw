@@ -1,8 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  samhw
-  Sample SAM Template for samhw
+  crawler
+  Volunteer crawler from volunteermatch.org
 
 Globals:
   Function:
@@ -36,14 +36,14 @@ Resources:
         CaliforniaSchedule:
           Type: Schedule
           Properties:
-            Schedule: cron(30 14 * * ? *)  # 14:30 PM UTC
+            Schedule: cron(30 23 * * ? *)  # 23:30 PM UTC
             Name: CaliforniaVolunteerSearch
             Description: "Trigger volunteer search for California"
             Input: '{"location": "93721"}'
         NewYorkSchedule:
           Type: Schedule
           Properties:
-            Schedule: cron(43 10 * * ? *)  # 15:00 PM UTC
+            Schedule: cron(0/30 * * * ? *)  # every 30 minutes
             Name: NewYorkVolunteerSearch
             Description: "Trigger volunteer search for New York"
             Input: '{"location": "11205"}'
