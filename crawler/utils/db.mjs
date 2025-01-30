@@ -41,10 +41,18 @@ export async function getAllIdsFromDynamoDB() {
     } while (lastEvaluatedKey);
     console.log('Help requests count before crawling is ', ids?.length);
 
-    return ids;
+    return {
+      success: true,
+      ids,
+    };
   } catch (error) {
     console.error('Error getting all IDs from DynamoDB:', JSON.stringify(error, null, 2));
-    throw error;
+    crawlerLogger.logDynamoDbError(error, 'error scanning existed requests');
+
+    return {
+      success: false,
+      ids
+    };
   }
 }
 

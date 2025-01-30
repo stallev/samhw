@@ -12,6 +12,7 @@ export const volunteerCrawlerHandler = async (event, context) => {
     }
 
     await volunteerSearchByState(location);
+    crawlerLogger.saveReport();
 
     return {
       status: 'success',

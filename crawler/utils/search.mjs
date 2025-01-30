@@ -6,7 +6,11 @@ import { ID_POSTFIX, BATCH_SIZE } from '../data/constants.mjs';
 
 export async function volunteerSearchByState(location ) {
   try {
-    const allRequestsIds = await getAllIdsFromDynamoDB();
+    const { success, ids: allRequestsIds} = await getAllIdsFromDynamoDB();
+
+    if(!success) {
+      return;
+    }
 
     const { opportunities } = await fetchVolunteerOpportunities(location);
 
@@ -36,12 +40,8 @@ export async function volunteerSearchByState(location ) {
         console.error('Error processing batch:', JSON.stringify(batchError, null, 2));
       }
     }
-
-    crawlerLogger.saveReport();
   } catch (error) {
     crawlerLogger.logGeneralExecutionError(error);
     console.error('Error in volunteerSearchByState:', JSON.stringify(error, null, 2));
-
-    crawlerLogger.saveReport();
   }
 }
