@@ -1,10 +1,11 @@
-import { DynamoDBClient, PutItemCommand, BatchWriteItemCommand, ScanCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, PutItemCommand, BatchWriteItemCommand, ScanCommand, DeleteItemCommand, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import logger from './logger.mjs';
+import { ID_POSTFIX } from '../data/constants.mjs';
 
-const dynamoClient = new DynamoDBClient({ region: process.env.MY_AWS_REGION || 'us-east-1' });
+const dynamoClient = new DynamoDBClient({ region: process.env.MY_AWS_REGION });
 
-const DYNAMO_DB_TABLE = process.env.DYNAMO_DB_TABLE || 'testCrawlerTable';
+const DYNAMO_DB_TABLE = process.env.DYNAMO_DB_TABLE;
 
 function removeUndefined(obj) {
   return Object.fromEntries(
@@ -48,11 +49,8 @@ export async function getAllIdsFromDynamoDB() {
 }
 
 export async function saveDataToDynamoDB(tableName, data) {
-  try {
-    console.log('Original data before save:', JSON.stringify(data, null, 2));
-    
+  try {    
     const cleanData = removeUndefined(data);
-    console.log('Clean data before marshalling:', JSON.stringify(cleanData, null, 2));
     
     if (cleanData.photos) {
       console.log('Photos before marshalling:', cleanData.photos);
@@ -124,8 +122,6 @@ async function batchSaveDataToDynamoDB(tableName, items) {
       (response.UnprocessedItems?.[tableName]?.length || 0);
     successfullItemsCount += processedItemsCount;
 
-    console.log('Successfully uploaded requests ', successfullItemsCount);
-
     if (response.UnprocessedItems && Object.keys(response.UnprocessedItems).length > 0) {
       const retryCommand = new BatchWriteItemCommand({
         RequestItems: response.UnprocessedItems
@@ -137,7 +133,7 @@ async function batchSaveDataToDynamoDB(tableName, items) {
       successfullItemsCount += processedItemsCount - retriedItemsCount;
     }
 
-    console.log(`Total successfully saved items: ${successfullItemsCount}`);
+    console.log(`Number of successfully saved items in the DynamoDB table (batch): ${successfullItemsCount}`);
 
     return { results, successfullItemsCount };
   } catch (error) {
@@ -152,19 +148,65 @@ export async function sendDataToDynamoDB(data) {
       const { successfullItemsCount } = await batchSaveDataToDynamoDB(DYNAMO_DB_TABLE, data);
 
       logger.increaseSuccessfullDbUploads(successfullItemsCount);
-
-      console.log(`Successfully saved ${successfullItemsCount} items to DynamoDB`);
     } else {
       await saveDataToDynamoDB(DYNAMO_DB_TABLE, data[0] || data);
 
       logger.increaseSuccessfullDbUploads(1);
-      
-      console.log('Successfully saved item to DynamoDB');
     }
     
   } catch (error) {
     console.error('Error in sendDataToDynamoDB:', error);
     throw error;
+  }
+}
+
+export async function findExpiredOpportunities() {
+  const now = new Date().toISOString();
+  const expiredOpportunities = [];
+  let lastEvaluatedKey = null;
+
+  do {
+    const scanParams = {
+      TableName: DYNAMO_DB_TABLE,
+      // FilterExpression: 'contains(id, :postfix) AND dueDate < :now',
+      // ExpressionAttributeValues: {
+      //   ':postfix': { S: ID_POSTFIX },
+      //   ':now': { S: now }
+      // },
+      FilterExpression: 'contains(id, :postfix)',
+      ExpressionAttributeValues: {
+        ':postfix': { S: ID_POSTFIX }
+      },
+      ProjectionExpression: 'id, photos, dueDate',
+      ExclusiveStartKey: lastEvaluatedKey
+    };
+
+    const command = new ScanCommand(scanParams);
+    const response = await dynamoClient.send(command);
+    
+    if (response.Items) {
+      expiredOpportunities.push(...response.Items.map(item => unmarshall(item)));
+    }
+
+    lastEvaluatedKey = response.LastEvaluatedKey;
+  } while (lastEvaluatedKey);
+
+  return expiredOpportunities;
+}
+
+export async function deleteDynamoDBItem(id) {
+  const deleteParams = {
+    TableName: DYNAMO_DB_TABLE,
+    Key: { 
+      id: { S: id }
+    }
+  };
+
+  try {
+    await dynamoClient.send(new DeleteItemCommand(deleteParams));
+    console.log(`Deleted DynamoDB item: ${id}`);
+  } catch (error) {
+    console.error('Error deleting DynamoDB item:', error);
   }
 }
 

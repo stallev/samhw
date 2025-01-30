@@ -15,6 +15,7 @@ function getFormattedDate(timestampValue) {
 class Logger {
   constructor() {
     this.stats = {
+      region: '',
       startTime: Date.now(),
       totalSuitableOpportunitiesCount: 0,
       newOpportunities: 0,
@@ -30,6 +31,10 @@ class Logger {
         generalExecutionErrors: [],
       }
     };
+  }
+
+  logRegion(region) {
+    this.stats.region = region;
   }
 
   logFetchError(page, location, error) {
@@ -128,12 +133,12 @@ class Logger {
     this.stats.errors.generalExecutionErrors.push(error);
   }
 
-  async saveReport(location) {
+  async saveReport() {
     const endTime = Date.now();
     const executionTime = (endTime - this.stats.startTime) / 1000;
 
     const report = {
-      location,
+      region: this.stats.region,
       executionTime,
       startTime: new Date(this.stats.startTime).toISOString(),
       endTime: new Date(endTime).toISOString(),

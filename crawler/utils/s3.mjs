@@ -1,12 +1,12 @@
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const mime = require('mime-types');
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
 import { getImageBuffer } from './api.mjs';
 import logger from './logger.mjs';
 
-const s3Client = new S3Client({ region: process.env.MY_AWS_REGION || 'us-east-1' });
+const s3Client = new S3Client({ region: process.env.MY_AWS_REGION });
 
 async function uploadFileToS3(bucket, buffer, originalUrl, opportunity) {
   try {
@@ -32,16 +32,9 @@ async function uploadFileToS3(bucket, buffer, originalUrl, opportunity) {
     
     const photoData = {
       bucket,
-      region: process.env.MY_AWS_REGION || 'us-east-1',
+      region: process.env.MY_AWS_REGION,
       key: `${name}.${fileExtension}`
     };
-    // const photoData = {
-    //   bucket,
-    //   region: process.env.MY_AWS_REGION || 'us-east-1',
-    //   key: '0873fc4e-1775-4e20-801c-9085ac7368a1.jpeg'
-    // };
-    
-    console.log(`Successfully uploaded file: ${fileName}`);
 
     return {
       success: true,
@@ -63,6 +56,22 @@ async function uploadFileToS3(bucket, buffer, originalUrl, opportunity) {
   }
 }
 
+export async function deleteS3Object(photoData) {
+  if (!photoData?.bucket || !photoData?.key) return;
+
+  const deleteParams = {
+    Bucket: photoData.bucket,
+    Key: `public/${photoData.key}`
+  };
+
+  try {
+    await s3Client.send(new DeleteObjectCommand(deleteParams));
+    console.log(`Deleted S3 object: ${photoData.key}`);
+  } catch (error) {
+    console.error('Error deleting S3 object:', error);
+  }
+}
+
 export async function uploadImageToS3(url, opportunity) {
   try {
     const imageBuffer = await getImageBuffer(url);
@@ -72,7 +81,7 @@ export async function uploadImageToS3(url, opportunity) {
       return [];
     }
 
-    const bucketName = process.env.S3_BUCKET_NAME || 'test-s3-crawler-allev';
+    const bucketName = process.env.S3_BUCKET_NAME;
     const uploadResult = await uploadFileToS3(bucketName, imageBuffer, url, opportunity);
     
     const result = uploadResult.success ? uploadResult.photoData : [];

@@ -1,6 +1,7 @@
 import { uploadImageToS3 } from './s3.mjs';
 import { getLatAndLot } from './api.mjs';
 import { getGeoProviderCreds } from './asm.mjs';
+import { categoryMatchData } from '../data/constants.mjs';
 import logger from './logger.mjs';
 
 function formatteAddressString(address) {
@@ -9,6 +10,18 @@ function formatteAddressString(address) {
     .map(line => line.trim())
     .filter(line => line)
     .join(', ');
+}
+
+function getCategoryName(categories) {
+  for (const key in categoryMatchData) {
+    const { matchesCategories, categoryName } = categoryMatchData[key];
+    
+    if (categories.some(category => matchesCategories.includes(category))) {
+      return categoryName;
+    }
+  }
+  
+  return 'category.Other';
 }
 
 export async function transformOpportunities(opportunities, sourceSitePostfix) {
@@ -56,7 +69,7 @@ export async function transformOpportunities(opportunities, sourceSitePostfix) {
             photos: imageCreds,
             owner: process.env.USER_OWNER_ID || 'd7fcb4d4-3b8d-4979-a4f9-080e7886f9e2',
             dueDate: (new Date(currentDate.setDate(currentDate.getDate() + 90))).toISOString(),
-            category: 'category.Other',
+            category: getCategoryName(opp.detail.categories),
             status: 'approved',
             __typename: 'HelpRequest',
             createdAt: currentDate.toISOString(),

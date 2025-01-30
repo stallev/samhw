@@ -25,7 +25,7 @@ export async function getLatAndLot(geoProviderCreds, address, opportunity) {
 export async function getImageBuffer(url) {
   try {
     const fullUrl = url.startsWith('http') ? url : `https:${url}`;
-    
+
     const response = await axios.get(fullUrl, {
       responseType: 'arraybuffer',
       timeout: 20000,
@@ -35,7 +35,7 @@ export async function getImageBuffer(url) {
   } catch (error) {
     console.error('Error fetching image:', error.message);
     console.error('Error details:', error.response ? error.response.status : 'No response');
-    
+
     return [];
   }
 }
@@ -77,6 +77,7 @@ async function fetchVolunteerOpportunitiesPage(location, pageNumber) {
                 street2
                 virtual
               }
+              categories
               title
               plaintextDescription
               imageUrl
@@ -87,14 +88,20 @@ async function fetchVolunteerOpportunitiesPage(location, pageNumber) {
     }
   });
 
+  const rejectedOppCategories = [
+    'gayLesbianBiTrans',
+    'politics',
+  ];
+
   const localOpps = response.data.data.searchSRP.srpOpportunities
+    .filter((el) => el?.detail.categories.every(category => !rejectedOppCategories.includes(category)))
     .filter((item) => {
       const street1 = item?.detail?.location?.street1;
       return typeof street1 === 'string' && street1.length > 4;
     })
     .filter((opp) => {
       const street1 = opp.detail.location.street1;
-      return invalidStreetArresses.every((invalid) => !street1.includes(invalid));
+      return invalidStreetArresses.every((invalid) => !street1.includes(invalid)) && /^\d/.test(street1);
     });
 
   const pageData = {
@@ -111,6 +118,9 @@ export async function fetchVolunteerOpportunities(location) {
 
     const totalResults = firstPageData?.resultsSize;
     const cityLocation = firstPageData.cityLocation;
+    const regionName = firstPageData?.srpOpportunities[0]?.detail.location.region;
+
+    logger.logRegion(regionName);
 
     let allOpportunities = [...firstPageData.srpOpportunities];
 
@@ -122,7 +132,6 @@ export async function fetchVolunteerOpportunities(location) {
       const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
       for (let page = 2; page <= totalPages; page++) {
-        console.log(`Fetching page ${page} of ${totalPages}. State is ${location}`);
         await delay(1000 + Math.random() * 5000);
 
         try {
