@@ -3,7 +3,7 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const NodeGeocoder = require('node-geocoder');
 import axios from 'axios';
-import logger from './logger.mjs';
+import { crawlerLogger } from './logger.mjs';
 import { invalidStreetArresses, pageFetchingHeaders, imageFetchingHeaders } from '../data/constants.mjs';
 
 export async function getLatAndLot(geoProviderCreds, address, opportunity) {
@@ -16,7 +16,7 @@ export async function getLatAndLot(geoProviderCreds, address, opportunity) {
     }
   } catch (error) {
     if (opportunity) {
-      logger.logGeocodingError(opportunity, error);
+      crawlerLogger.logGeocodingError(opportunity, error);
     }
     return null;
   }
@@ -120,7 +120,7 @@ export async function fetchVolunteerOpportunities(location) {
     const cityLocation = firstPageData.cityLocation;
     const regionName = firstPageData?.srpOpportunities[0]?.detail.location.region;
 
-    logger.logRegion(regionName);
+    crawlerLogger.logRegion(regionName);
 
     let allOpportunities = [...firstPageData.srpOpportunities];
 
@@ -138,7 +138,7 @@ export async function fetchVolunteerOpportunities(location) {
           const pageData = await fetchVolunteerOpportunitiesPage(location, page);
           allOpportunities = [...allOpportunities, ...pageData.srpOpportunities];
         } catch (error) {
-          logger.logFetchError(page, location, error);
+          crawlerLogger.logFetchError(page, location, error);
           continue;
         }
       }
@@ -150,7 +150,7 @@ export async function fetchVolunteerOpportunities(location) {
     };
 
   } catch (error) {
-    logger.logFetchError(1, location, error);
+    crawlerLogger.logFetchError(1, location, error);
     throw error;
   }
 }

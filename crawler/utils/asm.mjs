@@ -1,5 +1,5 @@
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
-import logger from './logger.mjs';
+import { crawlerLogger } from './logger.mjs';
 
 const ssmClient = new SSMClient();
 
@@ -27,7 +27,7 @@ export const getGeoProviderCreds = async () => {
   } catch (error) {
     console.error("Error fetching API Key:", error);
 
-    logger.logFetchingApiKeysError({
+    crawlerLogger.logFetchingApiKeysError({
       errorName: 'Error fetching Google API Key',
       error
     });

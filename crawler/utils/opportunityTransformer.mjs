@@ -1,8 +1,8 @@
 import { uploadImageToS3 } from './s3.mjs';
 import { getLatAndLot } from './api.mjs';
 import { getGeoProviderCreds } from './asm.mjs';
-import { categoryMatchData } from '../data/constants.mjs';
-import logger from './logger.mjs';
+import { categoryMatchData, DUE_DATE_DAYS_COUNT } from '../data/constants.mjs';
+import { crawlerLogger } from './logger.mjs';
 
 function formatteAddressString(address) {
   return address
@@ -68,7 +68,7 @@ export async function transformOpportunities(opportunities, sourceSitePostfix) {
             location,
             photos: imageCreds,
             owner: process.env.USER_OWNER_ID || 'd7fcb4d4-3b8d-4979-a4f9-080e7886f9e2',
-            dueDate: (new Date(currentDate.setDate(currentDate.getDate() + 90))).toISOString(),
+            dueDate: (new Date(currentDate.setDate(currentDate.getDate() + DUE_DATE_DAYS_COUNT))).toISOString(),
             category: getCategoryName(opp.detail.categories),
             status: 'approved',
             __typename: 'HelpRequest',
@@ -83,7 +83,7 @@ export async function transformOpportunities(opportunities, sourceSitePostfix) {
 
     return transformedData;
   } catch (error) {
-    logger.logGeneralExecutionError(error);
+    crawlerLogger.logGeneralExecutionError(error);
     console.error('Error transforming opportunities:', error);
     throw error;
   }

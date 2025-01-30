@@ -1,6 +1,6 @@
 import { DynamoDBClient, PutItemCommand, BatchWriteItemCommand, ScanCommand, DeleteItemCommand, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import logger from './logger.mjs';
+import { crawlerLogger, deleteExpiredLogger } from './logger.mjs';
 import { ID_POSTFIX } from '../data/constants.mjs';
 
 const dynamoClient = new DynamoDBClient({ region: process.env.MY_AWS_REGION });
@@ -43,15 +43,15 @@ export async function getAllIdsFromDynamoDB() {
 
     return ids;
   } catch (error) {
-    console.error('Error getting all IDs from DynamoDB:', error);
+    console.error('Error getting all IDs from DynamoDB:', JSON.stringify(error, null, 2));
     throw error;
   }
 }
 
 export async function saveDataToDynamoDB(tableName, data) {
-  try {    
+  try {
     const cleanData = removeUndefined(data);
-    
+
     if (cleanData.photos) {
       console.log('Photos before marshalling:', cleanData.photos);
       if (!Array.isArray(cleanData.photos)) {
@@ -71,12 +71,11 @@ export async function saveDataToDynamoDB(tableName, data) {
 
     const response = await dynamoClient.send(command);
 
-    logger.increaseSuccessfullDbUploads(1);
-
+    crawlerLogger.increaseSuccessfullDbUploads(1);
     return response;
   } catch (error) {
-    logger.logDynamoDbError(data, error);
-    console.error('Error saving to DynamoDB:', error);
+    crawlerLogger.logDynamoDbError(error, data);
+    console.error('Error saving to DynamoDB:', JSON.stringify(error, null, 2));
     throw error;
   }
 }
@@ -89,14 +88,9 @@ async function batchSaveDataToDynamoDB(tableName, items) {
     const batchWithCleanedPhotos = items.map(item => {
       const cleanItem = removeUndefined(item);
 
-      if (cleanItem?.photos?.bucket) {
-        if (!Array.isArray(cleanItem.photos)) {
-          cleanItem.photos = [cleanItem.photos];
-        }
-      } else {
-        cleanItem.photos = [];
-      }
-
+      cleanItem.photos = cleanItem?.photos?.bucket
+        ? Array.isArray(cleanItem.photos) ? cleanItem.photos : [cleanItem.photos]
+        : [];
       return cleanItem;
     });
 
@@ -118,8 +112,7 @@ async function batchSaveDataToDynamoDB(tableName, items) {
     const response = await dynamoClient.send(command);
     results.push(response);
 
-    const processedItemsCount = writeRequests.length - 
-      (response.UnprocessedItems?.[tableName]?.length || 0);
+    const processedItemsCount = writeRequests.length - (response.UnprocessedItems?.[tableName]?.length || 0);
     successfullItemsCount += processedItemsCount;
 
     if (response.UnprocessedItems && Object.keys(response.UnprocessedItems).length > 0) {
@@ -132,81 +125,94 @@ async function batchSaveDataToDynamoDB(tableName, items) {
       const retriedItemsCount = retryResponse?.UnprocessedItems?.[tableName]?.length || 0;
       successfullItemsCount += processedItemsCount - retriedItemsCount;
     }
-
-    console.log(`Number of successfully saved items in the DynamoDB table (batch): ${successfullItemsCount}`);
-
+    
     return { results, successfullItemsCount };
   } catch (error) {
-    console.error('Error in batch save to DynamoDB:', error);
-    throw error;
+    console.error('Error in batch save to DynamoDB:', JSON.stringify(error, null, 2));
+    crawlerLogger.logDynamoDbError(error);
+
+    return { results: [], successfullItemsCount: 0, error };
   }
 }
 
 export async function sendDataToDynamoDB(data) {
-  try {    
+  try {
     if (data?.length > 1) {
-      const { successfullItemsCount } = await batchSaveDataToDynamoDB(DYNAMO_DB_TABLE, data);
+      try {
+        const { successfullItemsCount } = await batchSaveDataToDynamoDB(DYNAMO_DB_TABLE, data);
 
-      logger.increaseSuccessfullDbUploads(successfullItemsCount);
+        crawlerLogger.increaseSuccessfullDbUploads(successfullItemsCount);
+      } catch (error) {
+        console.error('Batch save failed, but continuing execution:', JSON.stringify(error, null, 2));
+        crawlerLogger.logDynamoDbError(error);
+      }
     } else {
-      await saveDataToDynamoDB(DYNAMO_DB_TABLE, data[0] || data);
+      try {
+        await saveDataToDynamoDB(DYNAMO_DB_TABLE, data[0] || data);
 
-      logger.increaseSuccessfullDbUploads(1);
+        crawlerLogger.increaseSuccessfullDbUploads(1);
+      } catch (error) {
+        console.error('Single item save failed, but continuing execution:', JSON.stringify(error, null, 2));
+        crawlerLogger.logDynamoDbError(error, data);
+      }
     }
-    
   } catch (error) {
-    console.error('Error in sendDataToDynamoDB:', error);
-    throw error;
+    console.error('Unexpected error in sendDataToDynamoDB:', error);
   }
 }
 
 export async function findExpiredOpportunities() {
-  const now = new Date().toISOString();
-  const expiredOpportunities = [];
-  let lastEvaluatedKey = null;
+  try {
+    const now = new Date().toISOString();
+    const expiredOpportunities = [];
+    let lastEvaluatedKey = null;
 
-  do {
-    const scanParams = {
-      TableName: DYNAMO_DB_TABLE,
-      // FilterExpression: 'contains(id, :postfix) AND dueDate < :now',
-      // ExpressionAttributeValues: {
-      //   ':postfix': { S: ID_POSTFIX },
-      //   ':now': { S: now }
-      // },
-      FilterExpression: 'contains(id, :postfix)',
-      ExpressionAttributeValues: {
-        ':postfix': { S: ID_POSTFIX }
-      },
-      ProjectionExpression: 'id, photos, dueDate',
-      ExclusiveStartKey: lastEvaluatedKey
-    };
+    do {
+      const scanParams = {
+        TableName: DYNAMO_DB_TABLE,
+        // FilterExpression: 'contains(id, :postfix) AND dueDate < :now',
+        // ExpressionAttributeValues: {
+        //   ':postfix': { S: ID_POSTFIX },
+        //   ':now': { S: now }
+        // },
+        FilterExpression: 'contains(id, :postfix)',
+        ExpressionAttributeValues: {
+          ':postfix': { S: ID_POSTFIX }
+        },
+        ProjectionExpression: 'id, photos, dueDate',
+        ExclusiveStartKey: lastEvaluatedKey
+      };
 
-    const command = new ScanCommand(scanParams);
-    const response = await dynamoClient.send(command);
-    
-    if (response.Items) {
-      expiredOpportunities.push(...response.Items.map(item => unmarshall(item)));
-    }
+      const command = new ScanCommand(scanParams);
+      const response = await dynamoClient.send(command);
 
-    lastEvaluatedKey = response.LastEvaluatedKey;
-  } while (lastEvaluatedKey);
+      if (response.Items) {
+        expiredOpportunities.push(...response.Items.map(item => unmarshall(item)));
+      }
 
-  return expiredOpportunities;
+      lastEvaluatedKey = response.LastEvaluatedKey;
+    } while (lastEvaluatedKey);
+
+    return expiredOpportunities;
+  } catch (error) {
+    deleteExpiredLogger.logScanRequestsError(error);
+  }
 }
 
 export async function deleteDynamoDBItem(id) {
   const deleteParams = {
     TableName: DYNAMO_DB_TABLE,
-    Key: { 
+    Key: {
       id: { S: id }
     }
   };
 
   try {
     await dynamoClient.send(new DeleteItemCommand(deleteParams));
-    console.log(`Deleted DynamoDB item: ${id}`);
+
+    deleteExpiredLogger.incrementDeletedRequests();
   } catch (error) {
-    console.error('Error deleting DynamoDB item:', error);
+    deleteExpiredLogger.logDynamoDbError(error, id);
   }
 }
 

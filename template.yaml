@@ -96,7 +96,8 @@ Resources:
           Properties:
             Schedule: cron(44 2 * * ? *)  # 02:44 UTC
             Name: GeorgiaVolunteerSearch
-            Description:
+            Description: "Trigger volunteer search for GA at 03:00 UTC"
+            Input: '{"location": "30305"}'
         HawaiiSchedule:
           Type: Schedule
           Properties:

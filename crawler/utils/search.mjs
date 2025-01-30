@@ -1,7 +1,7 @@
 import { sendDataToDynamoDB, filterExistingOpportunities, getAllIdsFromDynamoDB } from './db.mjs';
 import { fetchVolunteerOpportunities } from './api.mjs';
 import { transformOpportunities } from './opportunityTransformer.mjs';
-import logger from './logger.mjs';
+import { crawlerLogger } from './logger.mjs';;
 import { ID_POSTFIX, BATCH_SIZE } from '../data/constants.mjs';
 
 export async function volunteerSearchByState(location ) {
@@ -12,7 +12,7 @@ export async function volunteerSearchByState(location ) {
 
     const newOpportunities = filterExistingOpportunities(allRequestsIds, opportunities, ID_POSTFIX);
 
-    logger.updateStats(opportunities.length, newOpportunities.length);
+    crawlerLogger.updateStats(opportunities.length, newOpportunities.length);
 
     if (!newOpportunities.length) {
       console.log('No new volunteer oppotunities');
@@ -32,24 +32,16 @@ export async function volunteerSearchByState(location ) {
         await sendDataToDynamoDB(validDataToSave);
         
       } catch (batchError) {
-        logger.logGeneralExecutionError(batchError);
-        console.error('Error processing batch:', batchError);
+        crawlerLogger.logGeneralExecutionError(batchError);
+        console.error('Error processing batch:', JSON.stringify(batchError, null, 2));
       }
     }
 
-    const reportData = await logger.saveReport();
-
-    console.log('execution report ', reportData);
-
-    return reportData;
+    crawlerLogger.saveReport();
   } catch (error) {
-    logger.logGeneralExecutionError(error);
-    console.error('Error in volunteerSearchByState:', error);
+    crawlerLogger.logGeneralExecutionError(error);
+    console.error('Error in volunteerSearchByState:', JSON.stringify(error, null, 2));
 
-    const reportData = await logger.saveReport();
-
-    console.log('execution report ', reportData);
-
-    return reportData;
+    crawlerLogger.saveReport();
   }
 }

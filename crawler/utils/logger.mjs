@@ -1,18 +1,87 @@
+export class deleteExpiredLoggerClass {
+  constructor() {
+    this.stats = {
+      startTime: Date.now(),
+      deletedRequests: 0,
+      deletedImages: 0,
+      errors: {
+        scanRequestsErrors: [],
+        dynamoDbErrors: [],
+        s3BucketErrors: [],
+        generalExecutionErrors: [],
+      }
+    }
+  }
 
-function getFormattedDate(timestampValue) {
-  const date = new Date(timestampValue);
+  incrementDeletedRequests() {
+    this.stats.deletedRequests++;
+  };
 
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const seconds = String(date.getSeconds()).padStart(2, '0');
+  incrementDeletedImages() {
+    this.stats.deletedImages++;
+  };
 
-  return `${year}-${month}-${day} ${hours} ${minutes} ${seconds}`;
-};
+  logDynamoDbError(error, id) {
+    const errorDetails = {
+      requestId: id,
+      errorType: error.name,
+      errorMessage: error.message,
+      timestamp: new Date().toISOString()
+    };
 
-class Logger {
+    this.stats.errors.dynamoDbErrors.push(errorDetails);
+    console.error('DynamoDB Delete Item Error:', JSON.stringify(errorDetails, null, 2));
+  };
+
+  logS3BucketError(error, key) {
+    const errorDetails = {
+      key,
+      errorType: error.name,
+      errorMessage: error.message,
+      timestamp: new Date().toISOString()
+    };
+
+    this.stats.errors.dynamoDbErrors.push(errorDetails);
+    console.error('Image Processing Error:', JSON.stringify(errorDetails, null, 2));
+  };
+
+  logScanRequestsError(error) {
+    const errorDetails = {
+      errorType: error.name,
+      errorMessage: error.message,
+      timestamp: new Date().toISOString()
+    };
+
+    this.stats.errors.scanRequestsErrors.push(errorDetails);
+    console.error('DynamoDB Scan Requests Error:', JSON.stringify(errorDetails, null, 2));
+  };
+  
+  getReport() {
+    const endTime = Date.now();
+    const executionTime = (endTime - this.stats.startTime) / 1000;
+
+    const report = {
+      executionTime,
+      deletedRequests: this.stats.deletedRequests,
+      deletedImages: this.stats.deletedImages,
+      errors: {
+        scanRequestsErrors: this.stats.errors.scanRequestsErrors,
+        dynamoDbErrors: this.stats.errors.dynamoDbErrors,
+        s3BucketErrors: this.stats.errors.s3BucketErrors,
+        generalExecutionErrors: this.stats.errors.generalExecutionErrors,
+      }
+    };
+
+    console.log('report of the expired requests cleaning', JSON.stringify(report, null, 2));
+  }
+
+  logGeneralExecutionError(error) {
+    this.stats.errors.generalExecutionErrors.push(error);
+    console.error('general Execution Error:', JSON.stringify(errorDetails, null, 2));
+  }
+}
+
+class crawlerLoggerClass {
   constructor() {
     this.stats = {
       region: '',
@@ -52,7 +121,7 @@ class Logger {
     }
 
     this.stats.errors.fetchErrors.push(errorDetails);
-    console.error('Fetch Error:', errorDetails);
+    console.error('Fetch Error:', JSON.stringify(errorDetails, null, 2));
   }
 
   logGeocodingError(opportunity, error) {
@@ -66,7 +135,7 @@ class Logger {
     };
 
     this.stats.errors.geocodingErrors.push(errorDetails);
-    console.error('Geocoding Error:', errorDetails);
+    console.error('Geocoding Error:', JSON.stringify(errorDetails, null, 2));
   }
 
   logImageProcessingError(opportunity, imageUrl, error) {
@@ -80,7 +149,7 @@ class Logger {
     };
 
     this.stats.errors.imageProcessingErrors.push(errorDetails);
-    console.error('Image Processing Error:', errorDetails);
+    console.error('Image Processing Error:', JSON.stringify(errorDetails, null, 2));
   }
 
   logImageUploadingError(opportunity, error) {
@@ -93,10 +162,10 @@ class Logger {
     };
 
     this.stats.errors.imageUploadingErrors.push(errorDetails);
-    console.error('Image Uploading Error:', errorDetails);
+    console.error('Image Uploading Error:', JSON.stringify(errorDetails, null, 2));
   }
 
-  logDynamoDbError(data, error) {
+  logDynamoDbError(error, data = 'batchItems') {
     const errorDetails = {
       processedData: data,
       errorType: error.name,
@@ -105,7 +174,7 @@ class Logger {
     };
 
     this.stats.errors.dynamoDbErrors.push(errorDetails);
-    console.error('DynamoDB Error:', errorDetails);
+    console.error('DynamoDB Error:', JSON.stringify(errorDetails, null, 2));
   }
 
   updateStats(totalOpps, newOpps) {
@@ -133,7 +202,7 @@ class Logger {
     this.stats.errors.generalExecutionErrors.push(error);
   }
 
-  async saveReport() {
+  saveReport() {
     const endTime = Date.now();
     const executionTime = (endTime - this.stats.startTime) / 1000;
 
@@ -150,8 +219,9 @@ class Logger {
       errors: this.stats.errors
     };
 
-    return report;
+    console.log('report of the requests crawling', JSON.stringify(report, null, 2));
   }
-}
+};
 
-export default new Logger();
+export const crawlerLogger = new crawlerLoggerClass();
+export const deleteExpiredLogger = new deleteExpiredLoggerClass();

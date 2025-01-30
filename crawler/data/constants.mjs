@@ -96,3 +96,5 @@ export const imageFetchingHeaders = {
 export const ID_POSTFIX = 'vlmtch';
 
 export const BATCH_SIZE = 25;
+
+export const DUE_DATE_DAYS_COUNT = 30;
