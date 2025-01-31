@@ -5,7 +5,7 @@ import { crawlerLogger, deleteExpiredLogger } from "./utils/logger.mjs";
 
 export const volunteerCrawlerHandler = async (event, context) => {
   try {
-    let location = '72201';
+    let location = '95814';
 
     if (event.location) {
       location = event.location;

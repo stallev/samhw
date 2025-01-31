@@ -27,357 +27,357 @@ Resources:
         Variables:
           USER_OWNER_ID: d7fcb4d4-3b8d-4979-a4f9-080e7886f9e2
           GOOGLE_API_KEY_PARAM_NAME: /dev/google_gcp_api_key
-      Events:
-        AlabamaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(20 0 * * ? *)  # 00:20 UTC
-            Name: AlabamaVolunteerSearch
-            Description: "Trigger volunteer search for Alabama"
-            Input: '{"location": "36104"}'
-        AlaskaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(36 0 * * ? *)  # 00:36 UTC
-            Name: AlaskaVolunteerSearch
-            Description: "Trigger volunteer search for Alaska"
-            Input: '{"location": "99501"}'
-        ArizonaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(52 0 * * ? *)  # 00:52 UTC
-            Name: ArizonaVolunteerSearch
-            Description: "Trigger volunteer search for Arizona"
-            Input: '{"location": "85001"}'
-        ArkansasSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(8 1 * * ? *)  # 01:08 UTC
-            Name: ArkansasVolunteerSearch
-            Description: "Trigger volunteer search for Arkansas"
-            Input: '{"location": "72201"}'
-        CaliforniaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(24 1 * * ? *)  # 01:24 UTC
-            Name: CaliforniaVolunteerSearch
-            Description: "Trigger volunteer search for California"
-            Input: '{"location": "95814"}'
-        ColoradoSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(40 1 * * ? *)  # 01:40 UTC
-            Name: ColoradoVolunteerSearch
-            Description: "Trigger volunteer search for Colorado"
-            Input: '{"location": "80203"}'
-        ConnecticutSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(56 1 * * ? *)  # 01:56 UTC
-            Name: ConnecticutVolunteerSearch
-            Description: "Trigger volunteer search for Connecticut"
-            Input: '{"location": "06103"}'
-        DelawareSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(12 2 * * ? *)  # 02:12 UTC
-            Name: DelawareVolunteerSearch
-            Description: "Trigger volunteer search for Delaware"
-            Input: '{"location": "19901"}'
-        FloridaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(28 2 * * ? *)  # 02:28 UTC
-            Name: FloridaVolunteerSearch
-            Description: "Trigger volunteer search for Florida"
-            Input: '{"location": "32301"}'
-        GeorgiaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(44 2 * * ? *)  # 02:44 UTC
-            Name: GeorgiaVolunteerSearch
-            Description: "Trigger volunteer search for GA at 03:00 UTC"
-            Input: '{"location": "30305"}'
-        HawaiiSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(0 3 * * ? *)  # 03:00 UTC
-            Name: HawaiiVolunteerSearch
-            Description: "Trigger volunteer search for HI at 03:00 UTC"
-            Input: '{"location": "96813"}'
-        IdahoSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(16 3 * * ? *)  # 03:16 UTC
-            Name: IdahoVolunteerSearch
-            Description: "Trigger volunteer search for ID at 03:16 UTC"
-            Input: '{"location": "83702"}'
-        IllinoisSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(32 3 * * ? *)  # 03:32 UTC
-            Name: IllinoisVolunteerSearch
-            Description: "Trigger volunteer search for IL at 03:32 UTC"
-            Input: '{"location": "62701"}'
-        IndianaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(48 3 * * ? *)  # 03:48 UTC
-            Name: IndianaVolunteerSearch
-            Description: "Trigger volunteer search for IN at 03:48 UTC"
-            Input: '{"location": "46204"}'
-        IowaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(4 4 * * ? *)  # 04:04 UTC
-            Name: IowaVolunteerSearch
-            Description: "Trigger volunteer search for IA at 04:04 UTC"
-            Input: '{"location": "50309"}'
-        KansasSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(20 4 * * ? *)  # 04:20 UTC
-            Name: KansasVolunteerSearch
-            Description: "Trigger volunteer search for KS at 04:20 UTC"
-            Input: '{"location": "66603"}'
-        KentuckySchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(36 4 * * ? *)  # 04:36 UTC
-            Name: KentuckyVolunteerSearch
-            Description: "Trigger volunteer search for KY at 04:36 UTC"
-            Input: '{"location": "40601"}'
-        LouisianaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(52 4 * * ? *)  # 04:52 UTC
-            Name: LouisianaVolunteerSearch
-            Description: "Trigger volunteer search for LA at 04:52 UTC"
-            Input: '{"location": "70802"}'
-        MaineSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(8 5 * * ? *)  # 05:08 UTC
-            Name: MaineVolunteerSearch
-            Description: "Trigger volunteer search for ME at 05:08 UTC"
-            Input: '{"location": "04330"}'
-        MarylandSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(24 5 * * ? *)  # 05:24 UTC
-            Name: MarylandVolunteerSearch
-            Description: "Trigger volunteer search for MD at 05:24 UTC"
-            Input: '{"location": "21401"}'
-        MassachusettsSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(40 5 * * ? *)  # 05:40 UTC
-            Name: MassachusettsVolunteerSearch
-            Description: "Trigger volunteer search for MA at 05:40 UTC"
-            Input: '{"location": "02108"}'
-        MichiganSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(56 5 * * ? *)  # 05:56 UTC
-            Name: MichiganVolunteerSearch
-            Description: "Trigger volunteer search for MI at 05:56 UTC"
-            Input: '{"location": "48933"}'
-        MinnesotaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(12 6 * * ? *)  # 06:12 UTC
-            Name: MinnesotaVolunteerSearch
-            Description: "Trigger volunteer search for MN at 06:12 UTC"
-            Input: '{"location": "55155"}'
-        MississippiSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(28 6 * * ? *)  # 06:28 UTC
-            Name: MississippiVolunteerSearch
-            Description: "Trigger volunteer search for MS at 06:28 UTC"
-            Input: '{"location": "39205"}'
-        MissouriSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(44 6 * * ? *)  # 06:44 UTC
-            Name: MissouriVolunteerSearch
-            Description: "Trigger volunteer search for MO at 06:44 UTC"
-            Input: '{"location": "65101"}'
-        MontanaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(0 7 * * ? *)  # 07:00 UTC
-            Name: MontanaVolunteerSearch
-            Description: "Trigger volunteer search for MT at 07:00 UTC"
-            Input: '{"location": "59601"}'
-        NebraskaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(16 7 * * ? *)  # 07:16 UTC
-            Name: NebraskaVolunteerSearch
-            Description: "Trigger volunteer search for NE at 07:16 UTC"
-            Input: '{"location": "68508"}'
-        NevadaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(32 7 * * ? *)  # 07:32 UTC
-            Name: NevadaVolunteerSearch
-            Description: "Trigger volunteer search for NV at 07:32 UTC"
-            Input: '{"location": "89701"}'
-        NewHampshireSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(48 7 * * ? *)  # 07:48 UTC
-            Name: NewHampshireVolunteerSearch
-            Description: "Trigger volunteer search for NH at 07:48 UTC"
-            Input: '{"location": "03301"}'
-        NewJerseySchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(4 8 * * ? *)  # 08:04 UTC
-            Name: NewJerseyVolunteerSearch
-            Description: "Trigger volunteer search for NJ at 08:04 UTC"
-            Input: '{"location": "08608"}'
-        NewMexicoSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(20 8 * * ? *)  # 08:20 UTC
-            Name: NewMexicoVolunteerSearch
-            Description: "Trigger volunteer search for NM at 08:20 UTC"
-            Input: '{"location": "87501"}'
-        NewYorkSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(36 8 * * ? *)  # 08:36 UTC
-            Name: NewYorkVolunteerSearch
-            Description: "Trigger volunteer search for NY at 08:36 UTC"
-            Input: '{"location": "12242"}'
-        NorthCarolinaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(52 8 * * ? *)  # 08:52 UTC
-            Name: NorthCarolinaVolunteerSearch
-            Description: "Trigger volunteer search for NC at 08:52 UTC"
-            Input: '{"location": "27601"}'
-        NorthDakotaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(8 9 * * ? *)  # 09:08 UTC
-            Name: NorthDakotaVolunteerSearch
-            Description: "Trigger volunteer search for ND at 09:08 UTC"
-            Input: '{"location": "58501"}'
-        OhioSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(24 9 * * ? *)  # 09:24 UTC
-            Name: OhioVolunteerSearch
-            Description: "Trigger volunteer search for OH at 09:24 UTC"
-            Input: '{"location": "43215"}'
-        OklahomaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(40 9 * * ? *)  # 09:40 UTC
-            Name: OklahomaVolunteerSearch
-            Description: "Trigger volunteer search for OK at 09:40 UTC"
-            Input: '{"location": "73105"}'
-        OregonSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(56 9 * * ? *)  # 09:56 UTC
-            Name: OregonVolunteerSearch
-            Description: "Trigger volunteer search for OR at 09:56 UTC"
-            Input: '{"location": "97301"}'
-        PennsylvaniaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(12 10 * * ? *)  # 10:12 UTC
-            Name: PennsylvaniaVolunteerSearch
-            Description: "Trigger volunteer search for PA at 10:12 UTC"
-            Input: '{"location": "17101"}'
-        RhodeIslandSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(28 10 * * ? *)  # 10:28 UTC
-            Name: RhodeIslandVolunteerSearch
-            Description: "Trigger volunteer search for RI at 10:28 UTC"
-            Input: '{"location": "02903"}'
-        SouthCarolinaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(44 10 * * ? *)  # 10:44 UTC
-            Name: SouthCarolinaVolunteerSearch
-            Description: "Trigger volunteer search for SC at 10:44 UTC"
-            Input: '{"location": "29201"}'
-        SouthDakotaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(0 11 * * ? *)  # 11:00 UTC
-            Name: SouthDakotaVolunteerSearch
-            Description: "Trigger volunteer search for SD at 11:00 UTC"
-            Input: '{"location": "57501"}'
-        TennesseeSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(16 11 * * ? *)  # 11:16 UTC
-            Name: TennesseeVolunteerSearch
-            Description: "Trigger volunteer search for TN at 11:16 UTC"
-            Input: '{"location": "37243"}'
-        TexasSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(32 11 * * ? *)  # 11:32 UTC
-            Name: TexasVolunteerSearch
-            Description: "Trigger volunteer search for TX at 11:32 UTC"
-            Input: '{"location": "78701"}'
-        UtahSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(48 11 * * ? *)  # 11:48 UTC
-            Name: UtahVolunteerSearch
-            Description: "Trigger volunteer search for UT at 11:48 UTC"
-            Input: '{"location": "84103"}'
-        VermontSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(4 12 * * ? *)  # 12:04 UTC
-            Name: VermontVolunteerSearch
-            Description: "Trigger volunteer search for VT at 12:04 UTC"
-            Input: '{"location": "05602"}'
-        VirginiaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(20 12 * * ? *)  # 12:20 UTC
-            Name: VirginiaVolunteerSearch
-            Description: "Trigger volunteer search for VA at 12:20 UTC"
-            Input: '{"location": "23219"}'
-        WashingtonSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(36 12 * * ? *)  # 12:36 UTC
-            Name: WashingtonVolunteerSearch
-            Description: "Trigger volunteer search for WA at 12:36 UTC"
-            Input: '{"location": "98501"}'
-        WestVirginiaSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(52 12 * * ? *)  # 12:52 UTC
-            Name: WestVirginiaVolunteerSearch
-            Description: "Trigger volunteer search for WV at 12:52 UTC"
-            Input: '{"location": "25301"}'
-        WisconsinSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(8 13 * * ? *)  # 13:08 UTC
-            Name: WisconsinVolunteerSearch
-            Description: "Trigger volunteer search for WI at 13:08 UTC"
-            Input: '{"location": "53703"}'
-        WyomingSchedule:
-          Type: Schedule
-          Properties:
-            Schedule: cron(24 13 * * ? *)  # 13:24 UTC
-            Name: WyomingVolunteerSearch
-            Description: "Trigger volunteer search for WY at 13:24 UTC"
-            Input: '{"location": "82001"}'
+      # Events:
+      #   AlabamaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(20 0 * * ? *)  # 00:20 UTC
+      #       Name: AlabamaVolunteerSearch
+      #       Description: "Trigger volunteer search for Alabama"
+      #       Input: '{"location": "36104"}'
+      #   AlaskaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(36 0 * * ? *)  # 00:36 UTC
+      #       Name: AlaskaVolunteerSearch
+      #       Description: "Trigger volunteer search for Alaska"
+      #       Input: '{"location": "99501"}'
+      #   ArizonaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(52 0 * * ? *)  # 00:52 UTC
+      #       Name: ArizonaVolunteerSearch
+      #       Description: "Trigger volunteer search for Arizona"
+      #       Input: '{"location": "85001"}'
+      #   ArkansasSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(8 1 * * ? *)  # 01:08 UTC
+      #       Name: ArkansasVolunteerSearch
+      #       Description: "Trigger volunteer search for Arkansas"
+      #       Input: '{"location": "72201"}'
+      #   CaliforniaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(24 1 * * ? *)  # 01:24 UTC
+      #       Name: CaliforniaVolunteerSearch
+      #       Description: "Trigger volunteer search for California"
+      #       Input: '{"location": "95814"}'
+      #   ColoradoSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(40 1 * * ? *)  # 01:40 UTC
+      #       Name: ColoradoVolunteerSearch
+      #       Description: "Trigger volunteer search for Colorado"
+      #       Input: '{"location": "80203"}'
+      #   ConnecticutSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(56 1 * * ? *)  # 01:56 UTC
+      #       Name: ConnecticutVolunteerSearch
+      #       Description: "Trigger volunteer search for Connecticut"
+      #       Input: '{"location": "06103"}'
+      #   DelawareSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(12 2 * * ? *)  # 02:12 UTC
+      #       Name: DelawareVolunteerSearch
+      #       Description: "Trigger volunteer search for Delaware"
+      #       Input: '{"location": "19901"}'
+      #   FloridaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(28 2 * * ? *)  # 02:28 UTC
+      #       Name: FloridaVolunteerSearch
+      #       Description: "Trigger volunteer search for Florida"
+      #       Input: '{"location": "32301"}'
+      #   GeorgiaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(44 2 * * ? *)  # 02:44 UTC
+      #       Name: GeorgiaVolunteerSearch
+      #       Description: "Trigger volunteer search for GA at 03:00 UTC"
+      #       Input: '{"location": "30305"}'
+      #   HawaiiSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(0 3 * * ? *)  # 03:00 UTC
+      #       Name: HawaiiVolunteerSearch
+      #       Description: "Trigger volunteer search for HI at 03:00 UTC"
+      #       Input: '{"location": "96813"}'
+      #   IdahoSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(16 3 * * ? *)  # 03:16 UTC
+      #       Name: IdahoVolunteerSearch
+      #       Description: "Trigger volunteer search for ID at 03:16 UTC"
+      #       Input: '{"location": "83702"}'
+      #   IllinoisSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(32 3 * * ? *)  # 03:32 UTC
+      #       Name: IllinoisVolunteerSearch
+      #       Description: "Trigger volunteer search for IL at 03:32 UTC"
+      #       Input: '{"location": "62701"}'
+      #   IndianaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(48 3 * * ? *)  # 03:48 UTC
+      #       Name: IndianaVolunteerSearch
+      #       Description: "Trigger volunteer search for IN at 03:48 UTC"
+      #       Input: '{"location": "46204"}'
+      #   IowaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(4 4 * * ? *)  # 04:04 UTC
+      #       Name: IowaVolunteerSearch
+      #       Description: "Trigger volunteer search for IA at 04:04 UTC"
+      #       Input: '{"location": "50309"}'
+      #   KansasSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(20 4 * * ? *)  # 04:20 UTC
+      #       Name: KansasVolunteerSearch
+      #       Description: "Trigger volunteer search for KS at 04:20 UTC"
+      #       Input: '{"location": "66603"}'
+      #   KentuckySchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(36 4 * * ? *)  # 04:36 UTC
+      #       Name: KentuckyVolunteerSearch
+      #       Description: "Trigger volunteer search for KY at 04:36 UTC"
+      #       Input: '{"location": "40601"}'
+      #   LouisianaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(52 4 * * ? *)  # 04:52 UTC
+      #       Name: LouisianaVolunteerSearch
+      #       Description: "Trigger volunteer search for LA at 04:52 UTC"
+      #       Input: '{"location": "70802"}'
+      #   MaineSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(8 5 * * ? *)  # 05:08 UTC
+      #       Name: MaineVolunteerSearch
+      #       Description: "Trigger volunteer search for ME at 05:08 UTC"
+      #       Input: '{"location": "04330"}'
+      #   MarylandSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(24 5 * * ? *)  # 05:24 UTC
+      #       Name: MarylandVolunteerSearch
+      #       Description: "Trigger volunteer search for MD at 05:24 UTC"
+      #       Input: '{"location": "21401"}'
+      #   MassachusettsSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(40 5 * * ? *)  # 05:40 UTC
+      #       Name: MassachusettsVolunteerSearch
+      #       Description: "Trigger volunteer search for MA at 05:40 UTC"
+      #       Input: '{"location": "02108"}'
+      #   MichiganSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(56 5 * * ? *)  # 05:56 UTC
+      #       Name: MichiganVolunteerSearch
+      #       Description: "Trigger volunteer search for MI at 05:56 UTC"
+      #       Input: '{"location": "48933"}'
+      #   MinnesotaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(12 6 * * ? *)  # 06:12 UTC
+      #       Name: MinnesotaVolunteerSearch
+      #       Description: "Trigger volunteer search for MN at 06:12 UTC"
+      #       Input: '{"location": "55155"}'
+      #   MississippiSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(28 6 * * ? *)  # 06:28 UTC
+      #       Name: MississippiVolunteerSearch
+      #       Description: "Trigger volunteer search for MS at 06:28 UTC"
+      #       Input: '{"location": "39205"}'
+      #   MissouriSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(44 6 * * ? *)  # 06:44 UTC
+      #       Name: MissouriVolunteerSearch
+      #       Description: "Trigger volunteer search for MO at 06:44 UTC"
+      #       Input: '{"location": "65101"}'
+      #   MontanaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(0 7 * * ? *)  # 07:00 UTC
+      #       Name: MontanaVolunteerSearch
+      #       Description: "Trigger volunteer search for MT at 07:00 UTC"
+      #       Input: '{"location": "59601"}'
+      #   NebraskaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(16 7 * * ? *)  # 07:16 UTC
+      #       Name: NebraskaVolunteerSearch
+      #       Description: "Trigger volunteer search for NE at 07:16 UTC"
+      #       Input: '{"location": "68508"}'
+      #   NevadaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(32 7 * * ? *)  # 07:32 UTC
+      #       Name: NevadaVolunteerSearch
+      #       Description: "Trigger volunteer search for NV at 07:32 UTC"
+      #       Input: '{"location": "89701"}'
+      #   NewHampshireSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(48 7 * * ? *)  # 07:48 UTC
+      #       Name: NewHampshireVolunteerSearch
+      #       Description: "Trigger volunteer search for NH at 07:48 UTC"
+      #       Input: '{"location": "03301"}'
+      #   NewJerseySchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(4 8 * * ? *)  # 08:04 UTC
+      #       Name: NewJerseyVolunteerSearch
+      #       Description: "Trigger volunteer search for NJ at 08:04 UTC"
+      #       Input: '{"location": "08608"}'
+      #   NewMexicoSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(20 8 * * ? *)  # 08:20 UTC
+      #       Name: NewMexicoVolunteerSearch
+      #       Description: "Trigger volunteer search for NM at 08:20 UTC"
+      #       Input: '{"location": "87501"}'
+      #   NewYorkSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(36 8 * * ? *)  # 08:36 UTC
+      #       Name: NewYorkVolunteerSearch
+      #       Description: "Trigger volunteer search for NY at 08:36 UTC"
+      #       Input: '{"location": "12242"}'
+      #   NorthCarolinaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(52 8 * * ? *)  # 08:52 UTC
+      #       Name: NorthCarolinaVolunteerSearch
+      #       Description: "Trigger volunteer search for NC at 08:52 UTC"
+      #       Input: '{"location": "27601"}'
+      #   NorthDakotaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(8 9 * * ? *)  # 09:08 UTC
+      #       Name: NorthDakotaVolunteerSearch
+      #       Description: "Trigger volunteer search for ND at 09:08 UTC"
+      #       Input: '{"location": "58501"}'
+      #   OhioSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(24 9 * * ? *)  # 09:24 UTC
+      #       Name: OhioVolunteerSearch
+      #       Description: "Trigger volunteer search for OH at 09:24 UTC"
+      #       Input: '{"location": "43215"}'
+      #   OklahomaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(40 9 * * ? *)  # 09:40 UTC
+      #       Name: OklahomaVolunteerSearch
+      #       Description: "Trigger volunteer search for OK at 09:40 UTC"
+      #       Input: '{"location": "73105"}'
+      #   OregonSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(56 9 * * ? *)  # 09:56 UTC
+      #       Name: OregonVolunteerSearch
+      #       Description: "Trigger volunteer search for OR at 09:56 UTC"
+      #       Input: '{"location": "97301"}'
+      #   PennsylvaniaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(12 10 * * ? *)  # 10:12 UTC
+      #       Name: PennsylvaniaVolunteerSearch
+      #       Description: "Trigger volunteer search for PA at 10:12 UTC"
+      #       Input: '{"location": "17101"}'
+      #   RhodeIslandSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(28 10 * * ? *)  # 10:28 UTC
+      #       Name: RhodeIslandVolunteerSearch
+      #       Description: "Trigger volunteer search for RI at 10:28 UTC"
+      #       Input: '{"location": "02903"}'
+      #   SouthCarolinaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(44 10 * * ? *)  # 10:44 UTC
+      #       Name: SouthCarolinaVolunteerSearch
+      #       Description: "Trigger volunteer search for SC at 10:44 UTC"
+      #       Input: '{"location": "29201"}'
+      #   SouthDakotaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(0 11 * * ? *)  # 11:00 UTC
+      #       Name: SouthDakotaVolunteerSearch
+      #       Description: "Trigger volunteer search for SD at 11:00 UTC"
+      #       Input: '{"location": "57501"}'
+      #   TennesseeSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(16 11 * * ? *)  # 11:16 UTC
+      #       Name: TennesseeVolunteerSearch
+      #       Description: "Trigger volunteer search for TN at 11:16 UTC"
+      #       Input: '{"location": "37243"}'
+      #   TexasSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(32 11 * * ? *)  # 11:32 UTC
+      #       Name: TexasVolunteerSearch
+      #       Description: "Trigger volunteer search for TX at 11:32 UTC"
+      #       Input: '{"location": "78701"}'
+      #   UtahSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(48 11 * * ? *)  # 11:48 UTC
+      #       Name: UtahVolunteerSearch
+      #       Description: "Trigger volunteer search for UT at 11:48 UTC"
+      #       Input: '{"location": "84103"}'
+      #   VermontSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(4 12 * * ? *)  # 12:04 UTC
+      #       Name: VermontVolunteerSearch
+      #       Description: "Trigger volunteer search for VT at 12:04 UTC"
+      #       Input: '{"location": "05602"}'
+      #   VirginiaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(20 12 * * ? *)  # 12:20 UTC
+      #       Name: VirginiaVolunteerSearch
+      #       Description: "Trigger volunteer search for VA at 12:20 UTC"
+      #       Input: '{"location": "23219"}'
+      #   WashingtonSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(36 12 * * ? *)  # 12:36 UTC
+      #       Name: WashingtonVolunteerSearch
+      #       Description: "Trigger volunteer search for WA at 12:36 UTC"
+      #       Input: '{"location": "98501"}'
+      #   WestVirginiaSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(52 12 * * ? *)  # 12:52 UTC
+      #       Name: WestVirginiaVolunteerSearch
+      #       Description: "Trigger volunteer search for WV at 12:52 UTC"
+      #       Input: '{"location": "25301"}'
+      #   WisconsinSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(8 13 * * ? *)  # 13:08 UTC
+      #       Name: WisconsinVolunteerSearch
+      #       Description: "Trigger volunteer search for WI at 13:08 UTC"
+      #       Input: '{"location": "53703"}'
+      #   WyomingSchedule:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(24 13 * * ? *)  # 13:24 UTC
+      #       Name: WyomingVolunteerSearch
+      #       Description: "Trigger volunteer search for WY at 13:24 UTC"
+      #       Input: '{"location": "82001"}'
 
   VolunteerCrawlerFunctionRole:
     Type: AWS::IAM::Role
@@ -437,11 +437,11 @@ Resources:
       Architectures:
         - x86_64
       Role: !GetAtt ExpiredOpportunitiesCleanerFunctionRole.Arn
-      Events:
-        DailyCleanup:
-          Type: Schedule
-          Properties:
-            Schedule: cron(0 1 * * ? *)  # daily at 1 AM UTC
+      # Events:
+      #   DailyCleanup:
+      #     Type: Schedule
+      #     Properties:
+      #       Schedule: cron(0 1 * * ? *)  # daily at 1 AM UTC
 
   ExpiredOpportunitiesCleanerFunctionRole:
     Type: AWS::IAM::Role
